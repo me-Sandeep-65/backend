@@ -1,0 +1,274 @@
+<section class="container login flex justify-center py-24">
+  <div class="w-full">
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <a href="#">
+          <div id="image-upload" class="flex items-center justify-center">
+            <img
+              title="Click to change photo."
+              id="profile-img"
+              src="/images/products/<%= productObject ? productObject.image : 'order.png' %>"
+              alt="profile-img"
+              style="
+                width: 250px;
+                height: 250px;
+                border-radius: 50%;
+                box-shadow: 0 0 10px 1px #ccc;
+              "
+            />
+            <input
+              type="file"
+              id="fileInput"
+              style="display: none"
+              multiple="false"
+            />
+          </div>
+        </a>
+        <div>
+          <% console.log(productObject) %> <% if(messages.error) { %>
+          <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
+          <% } %> <% if(productObject) { %>
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="name"
+            >
+              Product ID
+            </label>
+            <input
+              readonly
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="product-id"
+              name="product-id"
+              value="<%= productObject._id %>"
+            />
+          </div>
+          <% } %>
+
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="name"
+            >
+              Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Name"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="name"
+              name="name"
+              value="<%= productObject ? productObject.name : '' %>"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="price"
+            >
+              Price
+            </label>
+            <input
+              type="number"
+              placeholder="Enter Price"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="price"
+              name="price"
+              value="<%= productObject ? productObject.price : '' %>"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="category"
+            >
+              Category
+            </label>
+            <input
+              type="category"
+              placeholder="Enter Category"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="category"
+              name="category"
+              value="<%= productObject ? productObject.category : '' %>"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="type"
+            >
+              Type
+            </label>
+            <input
+              type="tel"
+              placeholder="Enter Type Number"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="type"
+              name="type"
+              value="<%= productObject ? productObject.type : '' %>"
+              required
+            />
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="tags">
+          Tags
+          <span class="mx-3 text-xs font-normal text-gray-400"
+            >(Enter the tags in comma separeted format.)</span
+          >
+        </label>
+        <!-- Use textarea instead of input for tags -->
+
+        <% let tags=""; if(productObject && productObject.tag){
+        productObject.tag.forEach((singleTag)=>{ tags = tags + singleTag + ", "
+        ; }) } %>
+
+        <textarea
+          id="tags"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline resize-none"
+          placeholder="Enter the tags"
+        >
+  <%= productObject ? tags : "" %></textarea
+        >
+      </div>
+      <div class="mb-4">
+        <label
+          class="block text-gray-700 text-sm font-bold mb-2"
+          for="discription"
+        >
+          Discription
+        </label>
+        <!-- Use textarea instead of input for discription -->
+        <textarea
+          id="description"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline resize-none"
+          placeholder="Enter the discription"
+        >
+  <%= productObject ? productObject.description : "" %></textarea
+        >
+      </div>
+
+      <% if(productObject){ %>
+      <div class="flex items-center justify-between">
+        <a href="/admin/deleteproduct/<%= productObject._id %>">
+          <button
+            type="button"
+            class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Delete
+          </button>
+        </a>
+        <button
+          id="submitBtn"
+          class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+        >
+          Update
+        </button>
+      </div>
+      <% } else { %>
+      <div class="flex items-center justify-end">
+        <button
+          id="submitBtn"
+          class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+        >
+          Add
+        </button>
+      </div>
+      <% } %>
+    </div>
+    <p class="text-center text-gray-500 text-xs">
+      &copy;2024 Restaurant Mgmt Systems. All rights reserved.
+    </p>
+  </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+    const name = document.getElementById("name").value;
+    const price = document.getElementById("price").value;
+    const category = document.getElementById("category").value;
+    const type = document.getElementById("type").value;
+    const tags = document.getElementById("tags").value;
+    const description = document.getElementById("description").value.trim();
+    const productDiv = document.getElementById("product-id");
+    const product_id = productDiv ? productDiv.value : "";
+    console.log(product_id);
+
+    let newTag = tags.split(",");
+
+    for (let index = 0; index < newTag.length; index++) {
+      newTag[index] = newTag[index].trim();
+    }
+
+    console.log(newTag);
+
+    if (product_id !== "") {
+      // If ID exists, make a PATCH request
+      try {
+        const response = await axios.patch(`/admin/product/${product_id}`, {
+          name,
+          price,
+          category,
+          type,
+          tag: newTag,
+          description,
+        });
+        console.log("PATCH Request Successful");
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error making PATCH request:", error);
+      }
+    } else {
+      // If ID doesn't exist, make a POST request
+      try {
+        const response = await axios.post("/admin/product", {
+          name,
+          price,
+          category,
+          type,
+          tag: newTag,
+          description,
+        });
+        console.log("POST Request Successful");
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error making POST request:", error);
+      }
+    }
+  });
+
+  const fileInput = document.getElementById("fileInput");
+
+  document.getElementById("image-upload").addEventListener("click", () => {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", async(event) => {
+    const selectedFile = event.target.files[0];
+
+    // if (selectedFile) {
+    //   const formData = new FormData();
+    //   formData.append('file', selectedFile);
+
+    //   try {
+    //     const response = await axios.post('/upload', formData, {
+    //       headers: {
+    //         'Content-Type': 'multipart/form-data'
+    //       }
+    //     });
+        
+    //     console.log(response.data);
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // }
+  });
+
+</script>

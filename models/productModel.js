@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
+  image: {
+    type: String,
+    trim: true,
+    default: "order.png",
+  },
+
   name: {
     type: String,
     trim: true,
@@ -25,7 +31,7 @@ const productSchema = new mongoose.Schema({
   tag: {
     type: [
       {
-        type: String,   // validate this while testing
+        type: String, // validate this while testing
         trim: true,
       },
     ],
@@ -58,6 +64,6 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-const Product = new mongoose.model("product", productSchema, "products");
+const Product = new mongoose.model("Product", productSchema);
 
 module.exports = Product;

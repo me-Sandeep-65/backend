@@ -1,0 +1,58 @@
+<section class="login flex justify-center py-24">
+    <div class="w-full max-w-2xl">
+      <div
+        class="bg-white shadow-md rounded-md py-4 px-4"
+      >
+      <% console.log(orderId) %>
+      <% if(messages.error) { %>
+        <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
+      <% } %>
+  
+        <div id="order-id" class="py-2 font-bold text-sm">Order ID: <%= orderId %></div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="answer">
+            Describe your issue
+          </label>
+
+          <textarea
+            id="faqAnswer"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline resize-none"
+            placeholder="Enter the issue"
+          ></textarea
+          >
+        </div>
+
+        <div class="flex items-center justify-end">
+          <button
+            id="submitBtn"
+            class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="button"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+      <p class="text-center text-gray-500 text-xs">
+        &copy;2024 Restaurant Mgmt Systems. All rights reserved.
+      </p>
+    </div>
+  </section>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+      <script>
+          document.getElementById('submitBtn').addEventListener('click', async () => {
+              const idDiv = document.getElementById('order-id');
+              const id = idDiv ? idDiv.textContent.replace('Order ID: ', '') : null;
+              const body = document.getElementById('faqAnswer').value;
+
+                try {
+                    const response = await axios.post('/raise_ticket', {orderId: id, body});
+                    console.log('POST Request Successful');
+                    console.log(response.data);
+                    window.location.href= "/tickets"
+                } catch (error) {
+                    console.error('Error making POST request:', error);
+                }
+          });
+      </script>
+  

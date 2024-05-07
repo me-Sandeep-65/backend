@@ -1,9 +1,22 @@
 const mongoose = require("mongoose");
+const Product= require("../models/productModel")
 
 const orderSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now,
+  },
+
+  waitingTime:{
+    type: Number,
+    default: 0
+  },
+
+  otp: {
+    type: Number,
+    min: [100000, "OTP cannot be less than 6 digits."],
+    max: [999999, "OTP cannot be more than 6 digits."],
+    default: 100000
   },
 
   grossTotal: {
@@ -12,6 +25,7 @@ const orderSchema = new mongoose.Schema({
   },
   discount: {
     type: Number,
+    default: 0
   },
 
   netTotal: {
@@ -22,7 +36,10 @@ const orderSchema = new mongoose.Schema({
   products: {
     type: [
       {
-        product: mongoose.ObjectId,
+        product: {
+          type: mongoose.ObjectId,
+          ref: "Product"
+        },
         quantity: Number,
       },
     ],
@@ -35,6 +52,7 @@ const orderSchema = new mongoose.Schema({
       enum: ["pending", "waiting", "completed", "cancelled"],
       default: "pending",
     },
+    role: String,
     by: mongoose.ObjectId,
   },
 
@@ -42,19 +60,23 @@ const orderSchema = new mongoose.Schema({
     status: {
       type: String,
       enum: ["completed", "refund in process", "refund complete"],
+      default:"completed"
     },
-    mode: {
+    orderId:{
       type: String,
-      enum: [
-        "debit card",
-        "credit card",
-        "upi",
-        "net banking",
-      ],
+      required: true
     },
+    paymentId:{
+      type: String,
+      required: true
+    },
+    signature:{
+      type: String,
+      required: true
+    }
   },
 });
 
-const Order = new mongoose.model("order", orderSchema, "orders");
+const Order = new mongoose.model("Order", orderSchema);
 
 module.exports = Order;

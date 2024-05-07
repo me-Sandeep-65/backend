@@ -1,0 +1,71 @@
+<section class="login flex justify-center">
+  <div class="container w-full rounded-md px-7">
+    <div
+      class="border-b border-solid border-#FF0000 flex items-center justify-between"
+    >
+      <div class="text-#232323 text-xl font-bold flex items-center py-4">
+        Your Tickets
+      </div>
+      <div class="flex items-center">
+        <input
+          type="radio"
+          id="all"
+          name="status"
+          value="all"
+          checked
+          class="mr-2 status-radio"
+        />
+        <label for="all" class="mr-4">All</label>
+
+        <input
+          type="radio"
+          id="pending"
+          name="status"
+          value="pending"
+          class="mr-2 status-radio"
+        />
+        <label for="pending" class="mr-4">Pending</label>
+
+        <input
+          type="radio"
+          id="resolved"
+          name="status"
+          value="resolved"
+          class="mr-2 status-radio"
+        />
+        <label for="resolved">Resolved</label>
+      </div>
+    </div>
+    <div id="ticket-content"></div>
+    <div class="flex items-center justify-center">
+      <button
+        id="more-ticket"
+        class="btn rounded-full text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline"
+      >
+        Load More
+      </button>
+      <div
+        id="ticket-loading-element"
+        class="loader hidden rounded-full border-4 border-t-4 border-red-500 h-12 w-12"
+      ></div>
+    </div>
+  </div>
+</section>
+<section class="login flex justify-center">
+  <div class="container w-full rounded-md px-7">
+    <div
+      class="border-b border-solid border-#FF0000 text-#232323 text-xl font-bold flex items-center py-4"
+    >
+      Frequenty Asked Questions
+    </div>
+    <div id="content"></div>
+    <div id="loading-element" class="flex items-center justify-center">
+      <div
+        class="loader rounded-full border-4 border-t-4 border-red-500 h-12 w-12"
+      ></div>
+    </div>
+  </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/ticket.js"></script>
+<script src="/js/faq.js"></script>

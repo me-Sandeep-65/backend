@@ -7,13 +7,26 @@ const Staff = require("../models/staffModel");
 
 const { verifyStaffPassword, verifyToken } = require("../middlewares/auth");
 
-router.get("/staff", (req, res) => {
-  res.status(200).json({ message: "hello staff" });
+router.get("/", (req, res) => {
+  res.status(200).render('partials/staffLogin');
 });
 
-router.post("/staff", verifyStaffPassword, (req, res) => {
+router.post("/", verifyStaffPassword, (req, res) => {
   // staff login
-  res.status(200).json(req.staff);
+  if (!req.staff) {
+    // console.log("here in if block")
+    req.flash("error", "Invalid UserId or Password.");
+    res.redirect("/staff");
+  } else if (req.staff.error) {
+    req.flash("staffId", req.body.staffId);
+    req.flash("error", req.staff.error);
+    res.status(500).redirect("/staff");
+  } else {
+    req.flash("staffId", `${req.staff.staff_id}`);
+    req.flash("name", `${req.staff.name.split(" ")[0]}`);
+    req.flash("message", `User logged in successfully.`);
+    res.redirect("/staff/orders");
+  }
 });
 
 router.get("/logout", (req, res) => {
@@ -21,7 +34,7 @@ router.get("/logout", (req, res) => {
   res.send("Cookie deleted successfully");
 });
 
-router.get("/staff/profile", verifyToken, async (req, res) => {
+router.get("/profile", verifyToken, async (req, res) => {
   try {
     const staff = await Staff.findOne({ _id: req._id }, { password: 0 });
 
@@ -36,7 +49,7 @@ router.get("/staff/profile", verifyToken, async (req, res) => {
   }
 });
 
-router.patch("/staff/profile", verifyToken, async (req, res) => {
+router.patch("/profile", verifyToken, async (req, res) => {
   try {
     await Staff.findByIdAndUpdate(
       req._id,
@@ -51,7 +64,7 @@ router.patch("/staff/profile", verifyToken, async (req, res) => {
   }
 });
 
-router.get("/staff/products", verifyToken, async (req, res) => {
+router.get("/products", verifyToken, async (req, res) => {
   try {
     const staff = await Staff.findById(req._id);
     if (staff) {
@@ -86,7 +99,7 @@ router.get("/staff/products", verifyToken, async (req, res) => {
   }
 });
 
-router.get("/staff/orders", verifyToken, async (req, res) => {
+router.get("/orders", verifyToken, async (req, res) => {
   try {
     const staff = await Staff.findById(req._id);
     if (staff) {
@@ -123,14 +136,14 @@ router.get("/staff/orders", verifyToken, async (req, res) => {
   }
 });
 
-router.patch("/staff/orders/:id", verifyToken, (req, res) => {
+router.patch("/orders/:id", verifyToken, (req, res) => {
   // update the order status by id
   // use websocket to watch changes in realtime
   res.send("sab changa si");
 });
 
 // make it data_stream if perfoming slow
-router.get("/staff/tickets", verifyToken, async (req, res) => {
+router.get("/tickets", verifyToken, async (req, res) => {
   console.log(`from stafftickets route: ${req._id}`);
   const staff = await Staff.findById(req._id);
   if (staff) {
@@ -152,7 +165,7 @@ router.get("/staff/tickets", verifyToken, async (req, res) => {
   }
 });
 
-router.get("/staff/tickets/:id", verifyToken, async (req, res) => {
+router.get("/tickets/:id", verifyToken, async (req, res) => {
   try {
     const staff = await Staff.findById(req._id);
 
@@ -171,7 +184,7 @@ router.get("/staff/tickets/:id", verifyToken, async (req, res) => {
   }
 });
 
-router.patch("/staff/tickets/:id", verifyToken, async (req, res) => {
+router.patch("/tickets/:id", verifyToken, async (req, res) => {
   try {
     const staff = await Staff.findById(req._id);
     if (staff) {

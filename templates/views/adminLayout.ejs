@@ -1,0 +1,86 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Silver Spoons</title>
+        <link rel="shortcut icon" href="/img/favicon-32x32.png" type="image/x-icon" />
+        <style> @import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"); </style>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="/css/adminStyle.css" />
+    </head>
+    <body>
+        <nav id="navbar" class="container mx-auto flex items-center justify-between py-3 my-2 rounded-md">
+            <div class="pl-6">
+                <a href="/admin/orders"><img src="/img/newLogo.png" alt="logo" class="logo" /></a>
+            </div>
+            <div>
+                <ul class="flex items-center">
+                    <li class="header-btn mx-auto px-3 py-2 flex rounded-md items-center"><a href="/admin/orders" title="Orders"><div class="flex items-center"><img src="/img/order.png" style="width: 40; height: 40; padding: 3px;" alt="icon"><div class="text-lg"> Orders</div>
+                    <li class="header-btn mx-auto px-3 py-2 flex rounded-md items-center"><a href="/admin/alltickets" title="Tickets"><div class="flex items-center"><img src="/img/tickets.png" style="width: 40; height: 40; padding: 3px;" alt="icon"><div class="text-lg"> Tickets</div>
+                    <li class="header-btn mx-auto px-3 py-2 flex rounded-md items-center"><a href="/admin/allproducts" title="Products"><div class="flex items-center"><img src="/img/products.png" style="width: 40; height: 40; padding: 3px;" alt="icon"><div class="text-lg"> Products</div>
+                    <li class="dropdown_more mx-3 px-2 py-2 relative">
+                        <a href="#" title="More">
+                            <div class="flex items-center py-1 px-3">
+                                <ul class="icons">
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                </ul>
+                            </div>
+                        </a>
+                        <div class="dropdown-content_more hidden absolute top-full left-0 bg-white border rounded-md shadow-lg">
+                            <a href="/admin/profile" title="Profile">
+                                <div class="flex items-center">
+                                    <img src="/img/login.png" style="width: 20; height: 20;" alt="logo">
+                                    <div class="px-3">Profile</div>
+                                </div>
+                            </a> 
+                            <a href="/admin/allstaffs" title="All Staff">
+                                <div class="flex items-center">
+                                    <img src="/img/allStaff.png" style="width: 20; height: 20;" alt="logo">
+                                <div class="px-3">All Staff</div>
+                                </div>
+                            </a>
+                            <a href="/admin/faqs" title="FAQs">
+                                <div class="flex items-center">
+                                    <img src="/img/faq.png" style="width: 20; height: 20;" alt="logo">
+                                    <div class="px-3">FAQs</div>
+                                </div>
+                            </a> 
+                            <a href="/admin/contacts" title="Contact Message">
+                                <div class="flex items-center">
+                                    <img src="/img/contact.png" style="width: 20; height: 20;" alt="logo">
+                                    <div class="px-3">Contact Messages</div>
+                                </div>
+                            </a> 
+                            <a href="/logout" title="Admin Logout">
+                                <div class="flex items-center">
+                                    <img src="/img/exit.png" style="width: 20; height: 20;" alt="logo">
+                                    <div class="px-3">Admin Login</div>
+                                </div>
+                            </a> 
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <%- body %>
+
+        <footer class="container footer-strip mx-auto flex flex-col justify-center py-3 mt-3 rounded-md">
+            <div class="footer flex items-center justify-center pb-2 bg-red">
+                <div class="px-3">Connect with Us:</div>
+                <a href="#" class="px-4"><img src="/img/facebook.svg" style="width: 20; height: 20;" alt=""></a>
+                <a href="#" class="px-4"><img src="/img/instagram.svg" style="width: 20; height: 20;" alt=""></a>
+                <a href="#" class="px-4"><img src="/img/instagram.svg" style="width: 20; height: 20;" alt=""></a>
+                <a href="#" class="px-4"><img src="/img/facebook.svg" style="width: 20; height: 20;" alt=""></a>
+            </div>
+            <div class="footer flex justify-center border-t-2 border-gray-200 py-2">
+                <p class="text-center text-gray-500 text-xs">
+                    &copy;2024 Restaurant Mgmt Systems. All rights reserved.
+                </p>
+            </div>
+        </footer>
+        <script src="/js/adminScript.js"></script>
+    </body>
+</html>

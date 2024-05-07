@@ -1,0 +1,94 @@
+<section class="login flex justify-center py-24">
+    <div class="w-full max-w-2xl">
+        <form action="/signup" method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="flex items-center justify-center">
+                <img title="Click to change photo." id="profile-img" src="/images/profiles/profile.png" alt="profile-img" style="width: 250px; height: 250px; border-radius:50%; box-shadow: 0 0 10px 1px #ccc;">
+            </div>
+            
+            <% if(messages.error) { %>
+            <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
+            <% } %>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Name
+                </label>
+                <input name="name" value="<%= messages.name  %>"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="username" type="text" placeholder="Enter your name">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Age
+                </label>
+                <input name="age" value="<%= messages.age  %>"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="username" type="number" min="0" max="150" required placeholder="Enter your age" inputmode="numeric" style="-moz-appearance: textfield; -webkit-appearance: none; appearance: none;">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Email
+                </label>
+                <input name="mail" value="<%= messages.email  %>"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="username" type="email" placeholder="Enter your email">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Mobile
+                </label>
+                <input name="mobile" value="<%= messages.mobile  %>"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="username" type="number" placeholder="Enter your Mobile number" required>
+            </div>
+            <div class="mb-6 flex items-center justify-center">
+                <button
+                id="update-profile"
+                    class="btn rounded-full text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
+                    Update Profile Info.
+                </button>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        Old Password
+                    </label>
+                    <input name="old-password"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        id="password" type="password" placeholder="******************">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        New Password
+                    </label>
+                    <input name="new-password"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        id="password" type="password" placeholder="******************">
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <button
+                    id="logout-btn"
+                    class="btn flex items-center justify-center rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit">
+                    <img src="/img/exit.png" alt="logout" class="filter invert w-5 h-5 mr-2">
+                    Log Out
+                </button>
+                <button
+                id="change-password-btn"
+                class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit">
+                Change Password
+                </button>
+                <button
+                id="update-password-btn"
+                class="btn rounded-full hidden text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit">
+                Update Password
+                </button>
+            </div>
+        </form>
+        <p class="text-center text-gray-500 text-xs">
+            &copy;2024 Restaurant Mgmt Systems. All rights reserved.
+        </p>
+    </div>
+</section>

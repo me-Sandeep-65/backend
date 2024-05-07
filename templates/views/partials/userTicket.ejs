@@ -1,0 +1,91 @@
+<section class="login flex justify-center">
+    <div class="container lg:3/5 md:w-2/4 w-full rounded-md px-7">
+      <div
+        class="border-b border-solid border-#FF0000 flex items-center justify-between"
+      >
+      <!-- <div class="flex itmes-center justify-evenly border-b-2 border-white"> -->
+        <h5 class="text-md font-bold my-3">Ticket ID: <span id="ticket-id" class="text-gray-700"><%= ticket._id %></span></h5>
+        <h5 id="status" class="text-md font-bold my-3 <%= ticket.status === 'pending' ? 'text-orange-500' : 'text-green-700' %>"><%= ticket.status %></h5>
+      </div>
+
+        <div class="mx-2 my-2 md:my-6 md:mx-6 flex">
+            <div id="content" class="flex flex-grow justify-end overflow-hidden shadow-inner bg-gray-100 rounded-md">
+                <div class="outer-chat-panel flex flex-col flex-grow justify-end">
+                    <div class="inner-chat-panel p-6 overflow-y-auto" style="height: 400px;">
+                        <!-- Individual Chat Messages -->
+                        <div id="chatMessages" class=" flex flex-col justify-end gap-4">
+                            <% ticket.conversation.forEach((message)=>{
+                                if(message.role!=="user"){ %>
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <img class="h-8 w-8 rounded-full" src="/img/logo.png" alt="Avatar">
+                                        </div>
+                                        <div class="ml-3 bg-gray-100 p-2 rounded-lg">
+                                            <p class="text-sm"><%= message.body %></p>
+                                        </div>
+
+                                    </div>
+                            <%    }
+                                else{  %>
+                                    <div class="flex justify-end items-start">
+                                        <div class="bg-blue-500 text-white p-2 rounded-lg">
+                                            <p class="text-sm"><%= message.body %></p>
+                                        </div>
+                                    </div>
+                            <%    }
+                            }) %>
+                        </div>
+                    </div>
+                    <div class="flex flex-row items-end">
+                        <textarea
+                        <%= (ticket.status==='resolved' || ticket.status==='Resolved') ? 'readonly' : '' %>
+                        id="text-msg"
+                        class="shadow-inner appearance-none border rounded-md w-full py-2 px-3 <%= ticket.status==='resolved' ? 'font-bold text-black' : 'text-gray-700' %> leading-tight focus:outline-none focus:shadow-outline resize-none"
+                        placeholder="Enter the Message here"
+                      ><%= (ticket.status==='resolved' || ticket.status==='Resolved') ? 'This Ticket has been Resolved.' : '' %></textarea>
+
+                        <button
+                        id="send-btn"
+                        class="btn rounded-full <%= (ticket.status==='resolved' || ticket.status==='Resolved') ? 'hidden' : '' %> text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline"
+                        >
+                        Send
+                        </button> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+      
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const statusBtn =document.getElementById("status-btn")
+    const sendBtn =document.getElementById("send-btn")
+    const textMsg =document.getElementById("text-msg")
+    const status =document.getElementById("status")
+    const ticketId =document.getElementById("ticket-id")
+    const chatContainer =document.getElementById("chatMessages")
+
+    sendBtn.addEventListener('click', async ()=>{
+        const newMessage=document.createElement('div')
+        newMessage.classList.add("flex", "justify-end", "items-start")
+        newMessage.innerHTML=`<div class="bg-blue-500 text-white p-2 rounded-lg">
+                                <p class="text-sm">${textMsg.value}</p>
+                            </div>`
+        
+        chatContainer.appendChild(newMessage);
+        
+        console.log(ticketId)
+        console.log(ticketId.textContent)
+        textMsg.value=''
+
+
+        // make axios call passing message as body    
+        const response= await axios.patch(`/ticket/${ticketId.textContent}`,{textMsg: textMsg.value});
+        
+    })
+
+</script>
+  

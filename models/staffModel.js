@@ -35,11 +35,10 @@ const staffSchema = new mongoose.Schema({
     ],
   },
 
-  identity:{
+  identitytype:{
     type: String,
     trim: true,
     required: [true, "Identity field cannot be empty."],
-    unique: [true, "This Identity is already registered. Try logging in instead."],    
   },
 
   identityno:{
@@ -53,7 +52,6 @@ const staffSchema = new mongoose.Schema({
     type: String,
     trim: true,
     required: [true, "address field cannot be empty."],
-    unique: [true, "This address is already registered. Try logging in instead."],
   },
 
   pincode:{
@@ -78,6 +76,6 @@ staffSchema.pre("save", async function (next) {
   next();
 });
 
-const Staff = new mongoose.model("Staff", staffSchema, "staffs");
+const Staff = new mongoose.model("Staff", staffSchema);
 
 module.exports = Staff;

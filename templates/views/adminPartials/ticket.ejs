@@ -1,0 +1,147 @@
+<section class="login flex justify-center">
+    <div class="container w-full rounded-md px-7">
+      <div
+        class="border-b border-solid border-#FF0000 flex items-center justify-between"
+      >
+      <!-- <div class="flex itmes-center justify-evenly border-b-2 border-white"> -->
+        <h5 class="text-md font-bold my-3">Ticket ID: <span id="ticket-id" class="text-gray-700"><%= ticket._id %></span></h5>
+        <h5 id="status" class="text-md font-bold my-3 <%= ticket.status === 'pending' ? 'text-orange-500' : 'text-green-700' %>"><%= ticket.status %></h5>
+        <% if(ticket.status==="pending"){ %>
+        <button
+        id="status-btn"
+        class="btn rounded-full text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline"
+      >
+        Mark as Resolved
+      </button>
+      <% } %>
+      </div>
+      <div class="px-6 py-4 flex">
+        <!-- Left side - User information -->
+        <div class="w-1/3 flex flex-col">
+                <div class="mb-10">
+                    <span class="text-black font-bold">User ID:</span>
+                    <span class="text-gray-600"><%= ticket.userId._id %></span>
+                </div>
+                <div class="mb-10">
+                    <span class="text-black font-bold">Order ID:</span>
+                    <span class="text-gray-600"><%= ticket.orderId %></span>
+                </div>
+                <div class="mb-10">
+                    <span class="text-black font-bold">Name:</span>
+                    <span class="text-gray-600"><%= ticket.userId.name %></span>
+                </div>
+                <div class="mb-10">
+                    <span class="text-black font-bold">Age:</span>
+                    <span class="text-gray-600"><%= ticket.userId.age %></span>
+                </div>
+                <div class="mb-10">
+                    <span class="text-black font-bold">Mobile:</span>
+                    <span class="text-gray-600"><%= ticket.userId.mobile %></span>
+                </div>
+                <div class="mb-10">
+                    <span class="text-black font-bold">Email:</span>
+                    <span class="text-gray-600"><%= ticket.userId.mail %></span>
+                </div>
+            </div>
+    
+        <!-- Right side - Content div -->
+        <div class="w-2/3 ml-4 flex">
+            <div id="content" class="flex flex-grow justify-end overflow-hidden shadow-inner bg-gray-100 rounded-md">
+                <div class="outer-chat-panel flex flex-col flex-grow justify-end">
+                    <div class="inner-chat-panel p-6 overflow-y-auto">
+                        <!-- Individual Chat Messages -->
+                        <div id="chatMessages" class=" flex flex-col gap-4">
+                            <% ticket.conversation.forEach((message)=>{
+                                if(message.role==="user"){ %>
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <img class="h-8 w-8 rounded-full" src="/images/profiles/profile.png" alt="Avatar">
+                                        </div>
+                                        <div class="ml-3 bg-gray-100 p-2 rounded-lg">
+                                            <p class="text-sm"><%= message.body %></p>
+                                        </div>
+
+                                    </div>
+                            <%    }
+                                else{  %>
+                                    <div class="flex justify-end items-start">
+                                        <div class="bg-blue-500 text-white p-2 rounded-lg">
+                                            <p class="text-sm"><%= message.body %></p>
+                                        </div>
+                                    </div>
+                            <%    }
+                            }) %>
+                        </div>
+                    </div>
+                    <div class="flex flex-row items-end">
+                        <textarea
+                        <%= (ticket.status==='resolved' || ticket.status==='Resolved') ? 'readonly' : '' %>
+                        id="text-msg"
+                        class="shadow-inner appearance-none border rounded-md w-full py-2 px-3 <%= ticket.status==='resolved' ? 'font-bold text-black' : 'text-gray-700' %> leading-tight focus:outline-none focus:shadow-outline resize-none"
+                        placeholder="Enter the Message here"
+                      ><%= (ticket.status==='resolved' || ticket.status==='Resolved') ? 'This Ticket has been Resolved.' : '' %></textarea>
+
+                        <button
+                        id="send-btn"
+                        class="btn rounded-full <%= (ticket.status==='resolved' || ticket.status==='Resolved') ? 'hidden' : '' %> text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline"
+                        >
+                        Send
+                        </button> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+      
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const statusBtn =document.getElementById("status-btn")
+    const sendBtn =document.getElementById("send-btn")
+    const textMsg =document.getElementById("text-msg")
+    const status =document.getElementById("status")
+    const ticketId =document.getElementById("ticket-id")
+    const chatContainer =document.getElementById("chatMessages")
+
+if (statusBtn) {
+        statusBtn.addEventListener('click', async(event)=>{
+            sendBtn.classList.add('hidden')
+            statusBtn.classList.add('hidden')
+            textMsg.value="This Ticket has been Resolved."
+            textMsg.classList.add('font-bold', 'text-black')
+            textMsg.setAttribute('readonly', 'readonly')
+            status.innerHTML= 'Resolved'
+            status.classList.remove('text-orange-500')
+            status.classList.add('text-green-700')
+    
+            console.log(ticketId)
+            console.log(ticketId.textContent)
+    
+            // make a axios call
+            const response= await axios.patch(`/admin/ticket/${ticketId.textContent}?resolve=true`);
+    
+        })
+}
+
+    sendBtn.addEventListener('click', async ()=>{
+        const newMessage=document.createElement('div')
+        newMessage.classList.add("flex", "justify-end", "items-start")
+        newMessage.innerHTML=`<div class="bg-blue-500 text-white p-2 rounded-lg">
+                                <p class="text-sm">${textMsg.value}</p>
+                            </div>`
+        
+        chatContainer.appendChild(newMessage);
+        
+        console.log(ticketId)
+        console.log(ticketId.textContent)
+
+        // make axios call passing message as body    
+        const response= await axios.patch(`/admin/ticket/${ticketId.textContent}`,{textMsg: textMsg.value});
+        textMsg.value=''
+    })
+
+</script>
+  

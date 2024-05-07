@@ -1,0 +1,61 @@
+<section class="login flex justify-center">
+    <div class="container w-full rounded-md px-7">
+        <div class="border-b border-solid border-#FF0000 flex items-center justify-between">
+        <div class=" text-#232323 text-xl font-bold flex items-center py-4">My Orders</div>
+        <div class="flex items-center">
+            <input
+              type="radio"
+              id="all"
+              name="status"
+              value="all"
+              checked
+              class="mr-2 status-radio"
+            />
+            <label for="all" class="mr-4">All</label>
+    
+            <input
+              type="radio"
+              id="pending"
+              name="status"
+              value="pending"
+              class="mr-2 status-radio"
+            />
+            <label for="waiting" class="mr-4">Pending</label>
+            <input
+              type="radio"
+              id="waiting"
+              name="status"
+              value="waiting"
+              class="mr-2 status-radio"
+            />
+            <label for="pending" class="mr-4">Waiting</label>
+
+            <input
+              type="radio"
+              id="cancelled"
+              name="status"
+              value="cancelled"
+              class="mr-2 status-radio"
+            />
+            <label for="cancelled" class="mr-4">Cancelled</label>
+    
+            <input
+              type="radio"
+              id="completed"
+              name="status"
+              value="completed"
+              class="mr-2 status-radio"
+            />
+            <label for="completed">Completed</label>
+          </div>
+        </div>
+        <div id="order-content">
+
+        </div>
+        <div class="flex items-center justify-center">
+            <div id="order-loading-element" class="loader rounded-full border-4 border-t-4 border-red-500 h-12 w-12"></div>
+        </div>
+    </div>
+  </section>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="/js/adminOrders.js"></script>

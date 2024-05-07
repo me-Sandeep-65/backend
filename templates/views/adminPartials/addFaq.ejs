@@ -1,0 +1,109 @@
+<section class="login flex justify-center py-24">
+  <div class="w-full max-w-2xl">
+    <div
+      class="bg-white shadow-md rounded-md py-4 px-4"
+    >
+    <% console.log(id) %>
+    <% console.log(question) %>
+    <% console.log(answer) %>
+    <% if(messages.error) { %>
+      <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
+    <% } %>
+
+      <% if(id){ %>
+      <div id="faqId" class="py-2 font-bold text-sm">ID: <%= id %></div>
+      <% } %>
+      <div class="mb-4">
+        <label
+          class="block text-gray-700 text-sm font-bold mb-2"
+          for="question"
+        >
+          Question
+        </label>
+        <!-- Use textarea instead of input for question -->
+        <textarea name="question" <% if (id) { %>
+readonly<% } %>
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline resize-none"
+          id="faqQuestion"
+          placeholder="Enter the question"
+        >
+<%= question ? question : '' %></textarea
+        >
+      </div>
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="answer">
+          Answer
+        </label>
+        <!-- Use textarea instead of input for answer -->
+        <textarea
+          id="faqAnswer"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline resize-none"
+          placeholder="Enter the answer"
+        >
+<%= answer ? answer : '' %></textarea
+        >
+      </div>
+      <% if(id){ %>
+      <div class="flex items-center justify-between">
+        <a href="/admin/deletefaq/<%= id %>">
+          <button
+            type="button"
+            class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Delete
+          </button>
+        </a>
+        <button
+        id="submitBtn"
+          class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+        >
+          Update
+        </button>
+      </div>
+      <% } else { %>
+      <div class="flex items-center justify-end">
+        <button
+          id="submitBtn"
+          class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+        >
+          Add
+        </button>
+      </div>
+      <% } %>
+    </div>
+    <p class="text-center text-gray-500 text-xs">
+      &copy;2024 Restaurant Mgmt Systems. All rights reserved.
+    </p>
+  </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const idDiv = document.getElementById('faqId');
+            const id = idDiv ? idDiv.textContent.replace('ID: ', '') : null;
+            const question = document.getElementById('faqQuestion').value;
+            const answer = document.getElementById('faqAnswer').value;
+
+            if (id) {
+                // If ID exists, make a PATCH request
+                try {
+                    const response = await axios.patch(`/admin/faq/${id}`, { question, answer });
+                    console.log('PATCH Request Successful');
+                    console.log(response.data);
+                } catch (error) {
+                    console.error('Error making PATCH request:', error);
+                }
+            } else {
+                // If ID doesn't exist, make a POST request
+                try {
+                    const response = await axios.post('/admin/faq', { question, answer });
+                    console.log('POST Request Successful');
+                    console.log(response.data);
+                } catch (error) {
+                    console.error('Error making POST request:', error);
+                }
+            }
+        });
+    </script>

@@ -1,0 +1,150 @@
+<section class="login flex justify-center py-24">
+    <div class="w-full max-w-2xl">
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="flex items-center justify-center">
+                <img title="Click to change photo." id="profile-img" src="/images/profiles/profile.png" alt="profile-img" style="width: 250px; height: 250px; border-radius:50%; box-shadow: 0 0 10px 1px #ccc;">
+            </div>
+            
+            <% if(messages.error) { %>
+            <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
+            <% } %>
+            <div id="err-msg" class="text-red-500 text-sm mb-3 hidden"></div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Name
+                </label>
+                <input value="<%= user.name  %>"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="name" type="text" placeholder="Enter your name">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Age
+                </label>
+                <input value="<%= user.age  %>"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="age" type="number" min="0" max="150" required placeholder="Enter your age" inputmode="numeric" style="-moz-appearance: textfield; -webkit-appearance: none; appearance: none;">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Email
+                </label>
+                <input value="<%= user.mail  %>"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="mail" type="email" placeholder="Enter your email">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Mobile
+                </label>
+                <input value="<%= user.mobile  %>"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="mobile" type="number" placeholder="Enter your Mobile number" required>
+            </div>
+            <div class="mb-6 flex items-center justify-center">
+                <button
+                id="update-profile-btn"
+                    class="btn rounded-full text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
+                    Update Profile Info.
+                </button>
+            </div>
+            <div id="get-password" class="flex hidden items-center justify-between">
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        Old Password
+                    </label>
+                    <input name="password"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        id="old-password" type="password" placeholder="******************">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        New Password
+                    </label>
+                    <input name="password"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        id="new-password" type="password" placeholder="******************">
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <a href="/logout">
+                    <button
+                        class="btn flex items-center justify-center rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        type="submit">
+                        <img src="/img/exit.png" alt="logout" class="filter invert w-5 h-5 mr-2">
+                        Log Out
+                    </button>
+                </a>
+                <button
+                id="change-password-btn"
+                class="btn rounded-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit">
+                Change Password
+                </button>
+                <button
+                id="update-password-btn"
+                class="btn rounded-full hidden text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit">
+                Update Password
+                </button>
+            </div>
+        </form>
+        <p class="text-center text-gray-500 text-xs">
+            &copy;2024 Restaurant Mgmt Systems. All rights reserved.
+        </p>
+    </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    const name=document.getElementById("name")
+    const age=document.getElementById("age")
+    const mail=document.getElementById("mail")
+    const mobile=document.getElementById("mobile")
+
+    const errorMsg= document.getElementById("err-msg")
+    const updateProfile= document.getElementById("update-profile-btn")
+    const updatePassword= document.getElementById("update-password-btn")
+    const changePassword= document.getElementById("change-password-btn")
+    const getPassword= document.getElementById("get-password")
+
+    changePassword.addEventListener('click', ()=>{
+        changePassword.classList.add("hidden")
+        updatePassword.classList.remove("hidden")
+        getPassword.classList.remove("hidden")
+    })
+
+    updateProfile.addEventListener('click', ()=>{
+        axios.patch("/myprofile",{
+            name: name.value.trim(),
+            age: age.value.trim(), 
+            mail: mail.value.trim(), 
+            mobile: mobile.value.trim(),
+        }).then(()=>{
+            window.location.reload();
+        }).catch((err)=>{
+            errorMsg.innerHTML="Something went wrong."
+            errorMsg.classList.remove("hidden");
+        })
+    })
+
+    updatePassword.addEventListener('click', ()=>{
+        const oldPassword=document.getElementById('old-password').value.trim()
+        const newPassword=document.getElementById('new-password').value.trim()
+
+        axios.patch("/myprofile",{
+            oldPassword,
+            newPassword
+        }).then(()=>{
+            changePassword.classList.remove("hidden")
+            updatePassword.classList.add("hidden")
+            getPassword.classList.add("hidden")
+            errorMsg.innerHTML="Password updated Successfully."
+            errorMsg.classList.remove("hidden");
+        }).catch((err)=>{
+            errorMsg.innerHTML="Something went wrong."
+            errorMsg.classList.remove("hidden");
+        })
+    })
+
+</script>

@@ -1,0 +1,94 @@
+<section class="login flex justify-center">
+    <div class="container w-full rounded-md px-7">
+        <div class="border-b border-solid border-#FF0000 flex items-center justify-between">
+        <div class=" text-#232323 text-xl font-bold flex items-center py-4">My Orders</div>
+        <div style="color: #e10019;">(click on order to raise ticket)</div>
+        <!-- <div class="flex items-center">
+            <input
+              type="radio"
+              id="all"
+              name="status"
+              value="all"
+              checked
+              class="mr-2 status-radio"
+            />
+            <label for="all" class="mr-4">All</label>
+    
+            <input
+              type="radio"
+              id="pending"
+              name="status"
+              value="pending"
+              class="mr-2 status-radio"
+            />
+            <label for="waiting" class="mr-4">Pending</label>
+            <input
+              type="radio"
+              id="waiting"
+              name="status"
+              value="waiting"
+              class="mr-2 status-radio"
+            />
+            <label for="pending" class="mr-4">Waiting</label>
+
+            <input
+              type="radio"
+              id="cancelled"
+              name="status"
+              value="cancelled"
+              class="mr-2 status-radio"
+            />
+            <label for="cancelled" class="mr-4">Cancelled</label>
+    
+            <input
+              type="radio"
+              id="completed"
+              name="status"
+              value="completed"
+              class="mr-2 status-radio"
+            />
+            <label for="completed">Completed</label>
+          </div> -->
+        </div>
+        <div id="order-content">
+            <section class="bg-white">
+                <% orders.forEach((order) => { 
+                  console.log(order)
+                  %>
+                    <a href="/raise_ticket/<%= order._id %>">
+                        <div class="bg-gray-200 p-4 my-2 rounded-md">
+                            <div class="flex itmes-center justify-between border-b-2 border-white">
+                                <h5 class="text-md font-bold my-3">Order ID: <span class="text-gray-700"><%= order._id %></span></h5>
+                                <h5 class="text-md font-bold my-3 ${statusColorClass}"><%= order.status.status %></h5>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <p class="text-black text-sm my-3 font-bold">Date: <span class="text-gray-700"><%= order.date %></span></p>
+                                <p class="text-black text-sm my-3 font-bold">Payment ID: <span class="text-gray-700"><%= order.payment.paymentId %></span></p>
+                            </div>
+                            <div class="border-t-2 border-white" id="productDiv-<%= order._id %>">
+                                <div class="text-black text-sm my-3 font-bold">Products</div>
+                                <% var qty=0;
+                                order.products.forEach((productObj)=>{
+                                    qty = qty + Number(productObj.quantity)
+                                %>
+                                <div class="grid grid-cols-4 justify-items-end"><span><%= productObj.product.name %></span> <span><%= productObj.product.type %></span> <span><%= productObj.quantity %></span> <span>₹<%= productObj.product.price*productObj.quantity %></span></div>
+                                <%})%>
+                            </div>
+                            <div class="grid grid-cols-4 justify-items-end mt-4"><span>Total number of items:</span> <span class="font-bold"><%= qty %></span> <span>Total Amount</span> <span class="font-bold">₹<%= order.netTotal %></span></div>
+                            <div class="<%= order.status.status!=='waiting' ? 'hidden' : '' %> grid grid-cols-4 justify-items-end"><span>Witing Time:</span> <span><%= order.waitingTime+" " %> minutes</span> <span>Receiving OTP:</span> <span><%= order.otp %></span></div>
+                          </div>
+                    </a>
+                <% }); %>
+                
+            </section>
+        </div>
+        <!-- <div class="flex items-center justify-center">
+            <button
+            id="more-order"
+                class="btn rounded-full text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
+                Load More
+            </button>
+            <div id="order-loading-element" class="loader hidden rounded-full border-4 border-t-4 border-red-500 h-12 w-12"></div>
+        </div> -->
+    </div>
+  </section>

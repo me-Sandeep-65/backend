@@ -1,0 +1,148 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Silver Spoons</title>
+        <link rel="shortcut icon" href="/img/favicon-32x32.png" type="image/x-icon" />
+        <style> @import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"); </style>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="/css/style.css" />
+    </head>
+    <body>
+        <nav class="container mx-auto flex items-center justify-between py-3 my-2 rounded-md">
+            <div class="pl-6">
+                <a href="/"><img src="/img/newLogo.png" alt="logo" class="logo" /></a>
+            </div>
+
+            <div>
+                <ul class="flex items-center">
+                    <li class="dropdown_login mx-2 px-1 py-2 relative">
+                        <a href="/<%= userName ? 'myprofile' : 'login' %>" title="<%= userName ? 'Profile' : 'Login' %>" >
+                            <div class="flex items-center">
+                                <img src="/img/login.png" style="width: 40px; height: 40px; padding: 3px;" alt="icon">
+                                <div class="text-lg px-1"><%= userName ? userName : 'Login' %></div>
+                                <div class="arrow">
+                                    <img src="/img/arrow.png" style="width: 30px; height: 30px; padding: 3px;" alt="">
+                                </div>
+                            </div>
+                        </a>
+                        <!-- Dropdown content -->
+                        <div class="dropdown-content_login hidden absolute top-full left-0 bg-white border rounded-md shadow-lg">
+                            <% if(!userName) { %>
+                                <a title="Sign Up" href="/login?signup=true" class="signup-btn" style="display: flex;"><span>New Customer?</span><span style= "color: red; font-weight: bold; ">Sign Up</span></a>
+                                <% } %>
+                            <a href="/<%= userName ? 'myprofile' : 'login' %>" title="Profile">
+                                <div class="flex items-center">
+                                    <img src="/img/login.png" style="width: 20; height: 20;" alt="logo">
+                                    <div class="px-3">Profile</div>
+                                </div>
+                            </a>
+                            <a href="/<%= userName ? 'myorder' : 'login' %>" title="Orders">
+                                <div class="flex items-center">
+                                    <img src="/img/order.png" style="width: 20; height: 20;" alt="logo">
+                                <div class="px-3">Orders</div>
+                                </div>
+                            </a>
+                            <% if(userName) { %>
+                                <a href="/logout" title="Orders">
+                                    <div class="flex items-center">
+                                        <img src="/img/exit.png" style="width: 20; height: 20;" alt="logo">
+                                    <div class="px-3">Log Out</div>
+                                    </div>
+                                </a> 
+                            <% } %>                
+                        </div>
+                    </li>
+                    <li class="mx-auto flex items-center mx-2"><a href="/mycart" title="Cart"><div class="cart flex items-center py-2 px-3"><span id="cartCounter" class="text-white text-<%= session.cart ? 2 : '' %>xl font-bold"><%= session.cart ? session.cart.totalQty : 'Cart' %></span><img src="/img/cart.png" style="width: 40; height: 40; padding: 3px;" alt="icon"><div class="text-lg text-white font-bold"></div>
+                    <li class="mx-auto pl-3 flex items-center"><a href="/faqs" title="FAQs"><div class="flex items-center"><img src="/img/faq.png" style="width: 40; height: 40; padding: 3px;" alt="icon"><div class="text-lg"> FAQs</div>
+                    <li class="dropdown_more mx-3 px-2 py-2 relative">
+                        <a href="#" title="More">
+                            <div class="flex items-center py-1 px-3">
+                                <ul class="icons">
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                </ul>
+                            </div>
+                        </a>
+                        <!-- Dropdown content -->
+                        <div class="dropdown-content_more hidden absolute top-full left-0 bg-white border rounded-md shadow-lg">
+                            <a href="/tickets" title="Help and Support">
+                                <div class="flex items-center">
+                                    <img src="/img/help.png" style="width: 20; height: 20;" alt="logo">
+                                    <div class="px-3">Help and Support</div>
+                                </div>
+                            </a>
+                            <a href="/staff" title="Staff Login">
+                                <div class="flex items-center">
+                                    <img src="/img/staff.png" style="width: 20; height: 20;" alt="logo">
+                                <div class="px-3">Staff Login</div>
+                                </div>
+                            </a>
+                            <a href="/admin" title="Admin Login">
+                                <div class="flex items-center">
+                                    <img src="/img/admin.png" style="width: 20; height: 20;" alt="logo">
+                                    <div class="px-3">Admin Login</div>
+                                </div>
+                            </a>
+                            <a href="#" title="Download App">
+                                <div class="flex items-center">
+                                    <img src="/img/download.png" style="width: 20; height: 20;" alt="logo">
+                                <div class="px-3">Download App</div>
+                                </div>
+                            </a>    
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <%- body %>
+
+        <footer class="container footer-strip mx-auto flex justify-center py-3 mt-3 rounded-md">
+            <div class="info flex">
+                <div>
+                    Important Links
+                    <ul>
+                        <a href="">Home</a>
+                        <a href="">About Us</a>
+                        <a href="">Contact Us</a>
+                    </ul>
+                </div>
+                <div>
+                    Products
+                    <ul>
+                        <a href="">Home</a>
+                        <a href="">About Us</a>
+                        <a href="">Contact Us</a>
+                    </ul>                    
+                </div>
+                <div>
+                    Help
+                    <ul>
+                        <a href="">Home</a>
+                        <a href="">About Us</a>
+                        <a href="">Contact Us</a>
+                    </ul>                    
+                </div>
+                <div>
+                    Contact
+                    <ul>
+                        <a href="">Home</a>
+                        <a href="">About Us</a>
+                        <a href="">Contact Us</a>
+                    </ul>                    
+                </div>
+            </div>
+            <div class="footer flex justify-center">
+                <div class="px-3">Connect with Us:</div><a href="#" class="px-4"><img src="/img/login.png" style="width: 20; height: 20;" alt=""></a>
+            </div>
+            <div class="footer flex justify-center">
+                <p class="text-center text-gray-500 text-xs">
+                    &copy;2024 Restaurant Mgmt Systems. All rights reserved.
+                </p>
+            </div>
+        </footer>
+        <script src="/js/script.js"></script>
+    </body>
+</html>

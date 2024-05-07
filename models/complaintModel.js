@@ -1,14 +1,18 @@
 const mongoose = require("mongoose");
+const User = require("./userModel")
+const Order = require("./orderModel")
 
 const complaintSchema = new mongoose.Schema({
   orderId: {
     type: mongoose.ObjectId,
     required: [true, "Order ID field cannot be empty."],
+    ref: "Order"
   },
 
   userId: {
     type: mongoose.ObjectId,
     required: [true, "User ID field cannot be empty."],
+    ref: "User"
   },
 
   status: {
@@ -27,6 +31,7 @@ const complaintSchema = new mongoose.Schema({
           minLength: [50, "Elaborate your concern in atleast 15 - 20 words."],
         },
         by: mongoose.ObjectId,
+        role: String,
         date:{
           type:Date,
           default:Date.now
@@ -36,6 +41,6 @@ const complaintSchema = new mongoose.Schema({
   },
 });
 
-const Complaint = new mongoose.model("complaint", complaintSchema, "complaints");
+const Complaint = new mongoose.model("complaint", complaintSchema);
 
 module.exports = Complaint;
