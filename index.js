@@ -17,7 +17,7 @@ const app = express();
 const port = process.env.PORT || 8000;
 
 // function call to connect to database
-// connectDB();
+connectDB();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 app.use(cors())
 app.use(express.static(path.join(__dirname, "/public")));
 app.use("/images", express.static(path.join(__dirname, "images")));
-// app.use(expressLayouts);
+app.use(expressLayouts);
 app.set("views", "./templates/views");
 app.set("view engine", "ejs");
 app.use((req, res, next) => {

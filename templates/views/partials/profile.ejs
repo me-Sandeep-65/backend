@@ -90,9 +90,6 @@
                 </button>
             </div>
         </form>
-        <p class="text-center text-gray-500 text-xs">
-            &copy;2024 Restaurant Mgmt Systems. All rights reserved.
-        </p>
     </div>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -115,36 +112,47 @@
     })
 
     updateProfile.addEventListener('click', ()=>{
-        axios.patch("/myprofile",{
-            name: name.value.trim(),
-            age: age.value.trim(), 
-            mail: mail.value.trim(), 
-            mobile: mobile.value.trim(),
-        }).then(()=>{
-            window.location.reload();
-        }).catch((err)=>{
-            errorMsg.innerHTML="Something went wrong."
-            errorMsg.classList.remove("hidden");
-        })
+        const isConfirmed = confirm("Are you sure you want to update your profile?");
+
+        if (isConfirmed) {
+            axios.patch("/myprofile",{
+                name: name.value.trim(),
+                age: age.value.trim(), 
+                mail: mail.value.trim(), 
+                mobile: mobile.value.trim(),
+            }).then(()=>{
+                window.location.reload();
+            }).catch((err)=>{
+                errorMsg.innerHTML="Something went wrong."
+                errorMsg.classList.remove("hidden");
+            })
+        }
     })
 
     updatePassword.addEventListener('click', ()=>{
+        const isConfirmed = confirm("Are you sure you want to change your password?");
+
         const oldPassword=document.getElementById('old-password').value.trim()
         const newPassword=document.getElementById('new-password').value.trim()
-
-        axios.patch("/myprofile",{
-            oldPassword,
-            newPassword
-        }).then(()=>{
-            changePassword.classList.remove("hidden")
-            updatePassword.classList.add("hidden")
-            getPassword.classList.add("hidden")
-            errorMsg.innerHTML="Password updated Successfully."
-            errorMsg.classList.remove("hidden");
-        }).catch((err)=>{
-            errorMsg.innerHTML="Something went wrong."
-            errorMsg.classList.remove("hidden");
-        })
+        if(isConfirmed){
+            axios.patch("/myprofile",{
+                oldPassword,
+                newPassword
+            }).then(()=>{
+                changePassword.classList.remove("hidden")
+                updatePassword.classList.add("hidden")
+                getPassword.classList.add("hidden")
+                errorMsg.innerHTML="Password updated Successfully."
+                errorMsg.classList.remove("hidden");
+            }).catch((err)=>{
+                errorMsg.innerHTML="Something went wrong."
+                errorMsg.classList.remove("hidden");
+            })
+        }
+        else{
+            document.getElementById('old-password').value='';
+            document.getElementById('new-password').value='';
+        }
     })
 
 </script>

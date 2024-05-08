@@ -1,6 +1,8 @@
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const router = new express.Router();
-const milter = require("multer")
+const multer = require("multer");
 const mongoose = require("mongoose");
 const flash = require("express-flash");
 const bcrypt = require("bcrypt");
@@ -312,7 +314,8 @@ router.get("/myorder", verifyToken, async (req, res) => {
       User.findById(req._id, { orders: 1 })
         .populate({
           path: "orders",
-          select: "waitingTime otp date status payment netTotal products.quantity", // Select fields from orders
+          select:
+            "waitingTime otp date status payment netTotal products.quantity", // Select fields from orders
           populate: {
             path: "products.product",
             select: "name price type", // Select fields from products
@@ -480,12 +483,13 @@ router.get("/tickets", (req, res) => {
 
 // make it data_stream if perfoming slow
 router.get("/ticket", verifyToken, async (req, res) => {
-  console.log("got a hit")
+  // console.log("got a hit")
   if (!req.err) {
     try {
       const user = await User.findById(req._id, { name: 1 });
 
       if (!user) {
+        console.log("user not found.");
         throw new Error({ error: "User Not Found." });
       } else {
         const limit = parseInt(req.query.limit) || 2; // Default limit
@@ -494,8 +498,8 @@ router.get("/ticket", verifyToken, async (req, res) => {
 
         let query = cursor ? { _id: { $lt: cursor } } : {}; // Create query based on cursor
         query.userId = req._id;
-        if(filter){
-          query.status=filter;
+        if (filter) {
+          query.status = filter;
         }
 
         const tickets = await Complaint.find(query)
@@ -508,18 +512,37 @@ router.get("/ticket", verifyToken, async (req, res) => {
 
         const nextCursor = hasNextPage ? tickets[tickets.length - 1]._id : null;
 
-        res.json({
-          hasNextPage,
-          nextCursor,
-          tickets,
-        });
+        if (!cursor && tickets.length === 0) {
+          const element = fs.readFileSync(
+            path.join(__dirname, "../templates/views/elements/no_ticket.ejs"),
+            "utf8"
+          );
+          res.json({ element });
+        } else {
+          res.json({
+            hasNextPage,
+            nextCursor,
+            tickets,
+          });
+        }
       }
     } catch (error) {
+      const element = fs.readFileSync(
+        path.join(
+          __dirname,
+          "../templates/views/elements/ticket_server_error.ejs"
+        ),
+        "utf8"
+      );
       console.error("Error fetching Tickets:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ element });
     }
   } else {
-    res.status(400).json({ error: "User Unauthorized." });
+    const element = fs.readFileSync(
+      path.join(__dirname, "../templates/views/elements/please_login.ejs"),
+      "utf8"
+    );
+    res.status(400).json({ element });
   }
 });
 
@@ -533,13 +556,13 @@ router.get("/ticket/:id", verifyToken, async (req, res) => {
         res.status(400).redirect("/login");
         // direct to login page
       } else {
-        const ticket = await Complaint.findById(id)
+        const ticket = await Complaint.findById(id);
 
         if (!ticket) {
           req.flash("error", "Invalid Ticket ID.");
           res.status(200).redirect("/admin/alltickets");
         }
-        console.log(ticket)
+        console.log(ticket);
         res.status(200).render("partials/userTicket", {
           ticket,
         });
@@ -557,35 +580,35 @@ router.get("/ticket/:id", verifyToken, async (req, res) => {
 
 router.patch("/ticket/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
-  console.log("the id is ",id);
+  console.log("the id is ", id);
 
-  console.log(req.body)
+  console.log(req.body);
   if (!req.err) {
     try {
-      const user = await User.findById( req._id, { password: 0 });
+      const user = await User.findById(req._id, { password: 0 });
       console.log(user);
       if (!user) {
         req.flash("error", "Invalid User mail or Password.");
         res.status(400).redirect("/login");
         // direct to login page
       } else {
-            const newConversation = {
-              body: req.body.textMsg,
-              by: req._id,
-              role: "user" 
-            };
+        const newConversation = {
+          body: req.body.textMsg,
+          by: req._id,
+          role: "user",
+        };
 
-            await Complaint.findByIdAndUpdate(
-              id,
-              { $push: { conversation: newConversation } },
-              { new: true },
-            );
+        await Complaint.findByIdAndUpdate(
+          id,
+          { $push: { conversation: newConversation } },
+          { new: true }
+        );
 
-            req.flash("error", "Updated Successfully.");
-            res.redirect(303, `/ticket/${id}`);
-          }
+        req.flash("error", "Updated Successfully.");
+        res.redirect(303, `/ticket/${id}`);
+      }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       req.flash("error", "Server Side Error.");
       res.status(500).redirect(303, "/tickets");
     }

@@ -46,7 +46,8 @@ if (req.cookies.authorization) {
       if (eror) {
         req.err={
           error: "user not autherized. please login again."
-        }      }
+        }      
+      }
       // console.log(_id);
       req._id = _id;
     });
