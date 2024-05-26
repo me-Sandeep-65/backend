@@ -269,6 +269,30 @@ router.patch("/profile", verifyToken, async (req, res) => {
   }
 });
 
+router.post("/upload-staffProfile-img", verifyToken, async(req, res)=>{
+  if (!req.err) {
+    try {
+      const admin = await Admin.findOne({ _id: req._id }, { password: 0 });
+      if (!admin) {
+        req.flash("error", "Invalid Admin ID or Password.");
+        res.status(400).redirect("/admin");
+        // direct to login page
+      } else {
+        // upload image to temp folder
+        const image_name = await uploadImage(req, path.join(__dirname, "../temp/profile-img/"));
+        res.status(200).json({image_name});
+      }
+    } catch (error) {
+      console.log(error)
+      req.flash("error", "Server-side Error.");
+      res.status(500).json({message: "Server-side Error."});
+    }
+  } else {
+    req.flash("error", "Invalid Admin ID or Password.");
+    res.status(400).redirect(303, "/admin");
+  }
+});
+
 router.get("/allstaffs", verifyToken, async (req, res) => {
   console.log("here in all staff");
   if (!req.err) {
@@ -354,7 +378,6 @@ router.get("/staff/:id", verifyToken, async (req, res) => {
 });
 
 router.post("/staff", verifyToken, async (req, res) => {
-  console.log("here in staff post");
   if (!req.err) {
     try {
       const admin = await Admin.findOne({ _id: req._id }, { password: 0 });
@@ -364,9 +387,17 @@ router.post("/staff", verifyToken, async (req, res) => {
         res.status(400).redirect("/admin");
         // direct to login page
       } else {
-        console.log("here in else block");
-        console.log(req.body);
+        if (req.body.image_name) {
+          const tempImagePath = path.join(__dirname, '../temp/profile-img/', req.body.image_name); // Assuming the temp directory is named 'temp'
+          const targetImagePath = path.join(__dirname, '../images/profiles/staffs/', req.body.image_name); // Assuming the images directory is named 'images'
+      
+          fs.rename(tempImagePath, targetImagePath, function(err) {
+            if (err) console.error('Error moving file:', err);
+          });
+        }
+
         const staff = new Staff({
+          image: req.body.image_name ? req.body.image_name : null,
           staff_id: req.body.staff_id,
           name: req.body.name,
           age: req.body.age,
@@ -389,13 +420,14 @@ router.post("/staff", verifyToken, async (req, res) => {
     } catch (error) {
       console.log(error);
       req.flash("error", "Server Side Error.");
-      res.status(500).redirect("/admin/faqs");
+      res.status(500).redirect("/admin/orders");
     }
   } else {
     req.flash("error", "Invalid Admin ID or Password.");
     res.status(400).redirect(303, "/admin");
   }
 });
+
 router.patch("/staff/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
   console.log(id);
@@ -415,14 +447,24 @@ router.patch("/staff/:id", verifyToken, async (req, res) => {
           req.flash("error", "The staff id is not found.");
           res.status(400).redirect(303, "/admin/allstaffs");
         } else {
+          if (req.body.image_name) {
+            const tempImagePath = path.join(__dirname, '../temp/profile-img/', req.body.image_name); // Assuming the temp directory is named 'temp'
+            const targetImagePath = path.join(__dirname, '../images/profiles/staffs/', req.body.image_name); // Assuming the images directory is named 'images'
+        
+            fs.rename(tempImagePath, targetImagePath, function(err) {
+              if (err) console.error('Error moving file:', err);
+            });
+          }
+
           const newStaff = await Staff.findByIdAndUpdate(
             staff._id,
             {
+              image: req.body.image_name ? req.body.image_name : null,
               name: req.body.name,
               age: req.body.age,
-              mail: req.body.nail,
+              mail: req.body.mail,
               mobile: req.body.mobile,
-              identity: req.body.identity,
+              identitytype: req.body.identity,
               identityno: req.body.identityno,
               address: req.body.address,
               pincode: req.body.pincode,
@@ -437,7 +479,7 @@ router.patch("/staff/:id", verifyToken, async (req, res) => {
       }
     } catch (error) {
       req.flash("error", "Server Side Error.");
-      res.status(500).redirect("/admin/allstaffs");
+      res.status(500).redirect("/admin/orders");
     }
   } else {
     req.flash("error", "Invalid Admin ID or Password.");

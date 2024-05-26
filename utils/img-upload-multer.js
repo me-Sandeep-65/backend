@@ -11,7 +11,7 @@ async function uploadImage(formData, destination) {
         },
         filename: function (req, file, cb) {
           let filename;
-          if (file.originalname==="order.png") {
+          if (file.originalname==="order.png" || file.originalname==="profile.png") {
             const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10);
             const uniqueFilename = nanoid(); // Generate unique filename using nanoid
             const fileExtension = file.originalname.split('.').pop(); // Get file extension
