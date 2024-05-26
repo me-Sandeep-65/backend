@@ -1,12 +1,10 @@
 <section class="login flex justify-center py-24">
   <div class="w-full max-w-2xl">
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <a href="#">
         <div class="flex items-center justify-center">
           <img
-            title="Click to change photo."
             id="profile-img"
-            src="/images/profiles/profile.png"
+            src="/images/profiles/admins/<%= adminImg ? adminImg : 'profile.png' %>"
             alt="profile-img"
             style="
               width: 250px;
@@ -16,7 +14,6 @@
             "
           />
         </div>
-      </a>
 
       <% if(messages.error) { %>
       <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
@@ -136,9 +133,6 @@
         </button>
       </div>
     </div>
-    <p class="text-center text-gray-500 text-xs">
-      &copy;2024 Restaurant Mgmt Systems. All rights reserved.
-    </p>
   </div>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -154,27 +148,35 @@
   });
 
   updatePassBtn.addEventListener("click", async () => {
-    passwordDiv.classList.add("hidden");
-    updatePassBtn.classList.add("hidden");
-    changePassBtn.classList.remove("hidden");
+    const isConfirmed = confirm("Are you sure you want to change your password?");
 
-    const idDiv= document.getElementById('admin-id')
-    console.log(idDiv.textContent)
-    const adminId = idDiv.textContent.replace('Admin ID: ', '').trim();
-    console.log(adminId)
-    console.log(adminId.trim())
-    const oldPassword = document.getElementById("old-password").value;
-    const newPassword = document.getElementById("new-password").value;
-    try {
-      const response = await axios.patch(`/admin/profile`, {
-        adminId,
-        oldPassword,
-        newPassword
-      });
-      console.log("PATCH Request Successful");
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error making PATCH request:", error);
+    if (isConfirmed){
+          passwordDiv.classList.add("hidden");
+          updatePassBtn.classList.add("hidden");
+          changePassBtn.classList.remove("hidden");
+      
+          const idDiv= document.getElementById('admin-id')
+          // console.log(idDiv.textContent)
+          const adminId = idDiv.textContent.replace('Admin ID: ', '').trim();
+          // console.log(adminId)
+          // console.log(adminId.trim())
+          const oldPassword = document.getElementById("old-password").value;
+          const newPassword = document.getElementById("new-password").value;
+          try {
+            const response = await axios.patch(`/admin/profile`, {
+              adminId,
+              oldPassword,
+              newPassword
+            });
+            console.log("PATCH Request Successful");
+            console.log(response.data);
+          } catch (error) {
+            console.error("Error making PATCH request:", error);
+          }
+    }
+    else{
+      document.getElementById("old-password").value='';
+      document.getElementById("new-password").value='';
     }
   });
 </script>

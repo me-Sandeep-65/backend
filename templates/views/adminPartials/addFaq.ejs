@@ -3,9 +3,9 @@
     <div
       class="bg-white shadow-md rounded-md py-4 px-4"
     >
-    <% console.log(id) %>
+    <!-- <% console.log(id) %>
     <% console.log(question) %>
-    <% console.log(answer) %>
+    <% console.log(answer) %> -->
     <% if(messages.error) { %>
       <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
     <% } %>
@@ -73,9 +73,6 @@ readonly<% } %>
       </div>
       <% } %>
     </div>
-    <p class="text-center text-gray-500 text-xs">
-      &copy;2024 Restaurant Mgmt Systems. All rights reserved.
-    </p>
   </div>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -90,8 +87,8 @@ readonly<% } %>
                 // If ID exists, make a PATCH request
                 try {
                     const response = await axios.patch(`/admin/faq/${id}`, { question, answer });
-                    console.log('PATCH Request Successful');
-                    console.log(response.data);
+                    // console.log('PATCH Request Successful');
+                    // console.log(response.data);
                 } catch (error) {
                     console.error('Error making PATCH request:', error);
                 }
@@ -99,8 +96,8 @@ readonly<% } %>
                 // If ID doesn't exist, make a POST request
                 try {
                     const response = await axios.post('/admin/faq', { question, answer });
-                    console.log('POST Request Successful');
-                    console.log(response.data);
+                    // console.log('POST Request Successful');
+                    // console.log(response.data);
                 } catch (error) {
                     console.error('Error making POST request:', error);
                 }

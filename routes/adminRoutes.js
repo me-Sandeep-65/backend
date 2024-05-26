@@ -8,9 +8,12 @@ const Faq = require("../models/faqModel");
 const Order = require("../models/orderModel");
 const Staff = require("../models/staffModel");
 const path = require("path");
+const fs = require("fs");
 
 const { verifyAdminPassword, verifyToken } = require("../middlewares/auth");
+const uploadImage = require("../utils/img-upload-multer");
 const Contact = require("../models/contactModel");
+
 
 router.get("/", (req, res) => {
   // console.log(path.join(__dirname, "../public/test.html"))
@@ -19,8 +22,8 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", verifyAdminPassword, (req, res) => {
-  console.log("in login post");
-  console.log(req.admin);
+  // console.log("in login post");
+  // console.log(req.admin);
   // admin login
   if (!req.admin) {
     // console.log("here in if block")
@@ -199,7 +202,7 @@ router.get("/logout", (req, res) => {
 
 router.get("/profile", verifyToken, async (req, res) => {
   if (!req.err) {
-    console.log("got a hit");
+    // console.log("got a hit");
     try {
       const admin = await Admin.findOne({ _id: req._id }, { password: 0 });
 
@@ -210,6 +213,7 @@ router.get("/profile", verifyToken, async (req, res) => {
       } else {
         res.status(200).render("adminPartials/adminProfile", {
           layout: "adminLayout",
+          adminImg: admin.image,
           adminId: admin.admin_id,
           name: admin.name,
           age: admin.age,
@@ -239,6 +243,7 @@ router.patch("/profile", verifyToken, async (req, res) => {
         admin &&
         (await bcrypt.compare(req.body.oldPassword, admin.password))
       ) {
+        console.log("updating password")
         const pass = await bcrypt.hash(req.body.newPassword, 10);
         const newadmin = await Admin.findByIdAndUpdate(
           req._id,
@@ -249,12 +254,14 @@ router.patch("/profile", verifyToken, async (req, res) => {
         req.flash("error", "Password Updated Successfully.");
         res.status(201).redirect(303, "/admin/profile");
       } else {
-        req.flash("error", "Invalid Old Password.");
-        res.status(400).redirect(303, "/admin");
+        console.log("password not matched.")
+        req.flash("error", "Old password do not matched.");
+        res.render('adminPartials/adminLogin' ,{redirectTo: '/admin'});
+        // res.status(400).redirect(303, "/admin");
       }
     } catch (error) {
-      req.flash("error", "Invalid Old Password.");
-      res.status(500).redirect(303, "/admin/");
+      req.flash("error", "server side error.");
+      res.status(500).redirect(303, "/admin");
     }
   } else {
     req.flash("error", "Invalid Admin ID or Password.");
@@ -687,26 +694,29 @@ router.patch("/ticket/:id", verifyToken, async (req, res) => {
   }
 });
 
-// router.post("/uploadproduct", verifyToken, async(req, res)=>{
-//   if (!req.err) {
-//     try {
-//       const admin = await Admin.findOne({ _id: req._id }, { password: 0 });
-//       if (!admin) {
-//         req.flash("error", "Invalid Admin ID or Password.");
-//         res.status(400).redirect("/admin");
-//         // direct to login page
-//       } else {
-
-//       }
-//     } catch (error) {
-//       req.flash("error", "Server-side Error.");
-//       res.status(500).redirect("/admin/orders");
-//     }
-//   } else {
-//     req.flash("error", "Invalid Admin ID or Password.");
-//     res.status(400).redirect(303, "/admin");
-//   }
-// })
+router.post("/upload-product-img", verifyToken, async(req, res)=>{
+  if (!req.err) {
+    try {
+      const admin = await Admin.findOne({ _id: req._id }, { password: 0 });
+      if (!admin) {
+        req.flash("error", "Invalid Admin ID or Password.");
+        res.status(400).redirect("/admin");
+        // direct to login page
+      } else {
+        // upload image to temp folder
+        const image_name = await uploadImage(req, path.join(__dirname, "../temp/product-img/"));
+        res.status(200).json({image_name});
+      }
+    } catch (error) {
+      console.log(error)
+      req.flash("error", "Server-side Error.");
+      res.status(500).json({message: "Server-side Error."});
+    }
+  } else {
+    req.flash("error", "Invalid Admin ID or Password.");
+    res.status(400).redirect(303, "/admin");
+  }
+});
 
 router.get("/allproducts", verifyToken, async (req, res) => {
   // console.log(`from adminproducts route: ${req._id}`);
@@ -801,10 +811,17 @@ router.post("/product", verifyToken, async (req, res) => {
         res.status(400).redirect("/admin");
         // direct to login page
       } else {
-        console.log("here in else block");
-        console.log(req.body);
+        if (req.body.image_name) {
+          const tempImagePath = path.join(__dirname, '../temp/product-img/', req.body.image_name); // Assuming the temp directory is named 'temp'
+          const targetImagePath = path.join(__dirname, '../images/products/', req.body.image_name); // Assuming the images directory is named 'images'
+      
+          fs.rename(tempImagePath, targetImagePath, function(err) {
+            if (err) console.error('Error moving file:', err);
+          });
+        }
 
         const product = new Product({
+          image: req.body.image_name ? req.body.image_name : null,
           name: req.body.name,
           price: req.body.price,
           category: req.body.category,
@@ -843,9 +860,19 @@ router.patch("/product/:id", verifyToken, async (req, res) => {
         res.status(400).redirect("/admin");
         // direct to login page
       } else {
+        if (req.body.image_name) {
+          const tempImagePath = path.join(__dirname, '../temp/product-img/', req.body.image_name); // Assuming the temp directory is named 'temp'
+          const targetImagePath = path.join(__dirname, '../images/products/', req.body.image_name); // Assuming the images directory is named 'images'
+      
+          fs.rename(tempImagePath, targetImagePath, function(err) {
+            if (err) console.error('Error moving file:', err);
+          });
+        }
+
         const newProduct = await Product.findByIdAndUpdate(
           id,
           {
+            image: req.body.image_name ? req.body.image_name : null,
             name: req.body.name,
             price: req.body.price,
             category: req.body.category,

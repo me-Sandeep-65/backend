@@ -1,26 +1,78 @@
 <section class="login flex justify-center py-24">
   <div class="w-full max-w-2xl">
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <a href="#">
-        <div class="flex items-center justify-center">
-          <img
-            title="Click to change photo."
-            id="profile-img"
-            src="/images/profiles/profile.png"
-            alt="profile-img"
-            style="
-              width: 250px;
-              height: 250px;
-              border-radius: 50%;
-              box-shadow: 0 0 10px 1px #ccc;
-            "
-          />
+      <div class="flex flex-col items-center justify-center">
+        <img
+          title="Click to change photo."
+          id="profile-img"
+          src="/images/profiles/staffs/<%= staffObject && staffObject.image ? staffObject.image : 'profile.png' %>"
+          alt="profile-img"
+          style="
+            cursor: pointer;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 1px #ccc;
+          "
+        />
+        <div id="msg-section" class="text-red-500 text-sm my-6">
+          <%= messages.error %>
         </div>
-      </a>
-
-      <% if(messages.error) { %>
-      <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
-      <% } %>
+      </div>
+      <div id="overlay" style="display: none">
+        <div
+          id="image-upload-panel"
+          class="w-full max-w-2xl rounded-md flex flex-col items-center justify-center"
+        >
+          <label class="text-2xl font-bold">Upload Image</label>
+          <div
+            class="bg-gray-200 shadow-inner rounded-md w-full my-6 cursor-pointer"
+          >
+            <div
+              id="upload-container"
+              class="flex flex-col items-center w-full h-full"
+            >
+              <img
+                src="/img/upload-img.png"
+                alt="upload-img"
+                class="w-1/2 h-1/2 object-contain"
+              />
+              <label for="panelFileInput" class="mb-4 cursor-pointer">
+                Drag and drop an image or click here to select an image:
+                <input
+                  type="file"
+                  style="display: none"
+                  id="panelFileInput"
+                  accept="image/*"
+                />
+              </label>
+            </div>
+            <div
+              id="preview"
+              class="flex flex-col items-center w-full h-full"
+            ></div>
+          </div>
+          <div class="w-full flex justify-end">
+            <button
+              id="cancelBtn"
+              class="btn rounded-full text-white font-bold py-2 px-4 mx-3 rounded focus:outline-none focus:shadow-outline"
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              id="confirmBtn"
+              class="btn rounded-full text-white font-bold py-2 px-4 mx-3 rounded focus:outline-none focus:shadow-outline"
+              type="button"
+            >
+              Confirm
+            </button>
+          </div>
+          <div id="croppedImageContainer" class="hidden">
+            <!-- Cropped image will be displayed here -->
+          </div>
+        </div>
+      </div>
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
           Staff ID
@@ -202,9 +254,6 @@
       </div>
       <% } %>
     </div>
-    <p class="text-center text-gray-500 text-xs">
-      &copy;2024 Restaurant Mgmt Systems. All rights reserved.
-    </p>
   </div>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
