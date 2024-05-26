@@ -3,7 +3,7 @@ const loadingIndicator = document.getElementById("order-loading-element");
 const statusRadioButtons = document.querySelectorAll(".status-radio");
 
 let cursor = null;
-let filter = null;
+let filter = "pending";
 
 statusRadioButtons.forEach((button) => {
   button.addEventListener("change", function () {
@@ -65,16 +65,17 @@ async function fetchOrders(filter) {
     // console.log(orders);
 
     orders.forEach((order) => {
-    //   console.log(ele);
-      //   console.log(order);
-      const statusColorClass =
-        order.status === "pending" ? "text-orange-500" : "text-green-700";
+      let statusColorClass;
+      if(order.status.status === "pending") statusColorClass = "text-yellow-300";
+      else if(order.status.status === "waiting") statusColorClass = "text-orange-500";
+      else if(order.status.status === "cancelled") statusColorClass = "text-red-500";
+      else statusColorClass = "text-green-700";
+
       const orderItem = document.createElement("div");
-      // <a href="/order/<%= order._id %>">
       orderItem.classList.add("bg-gray-200", "p-4", "my-2", "rounded-md");
       orderItem.innerHTML = `<div class="flex itmes-center justify-between border-b-2 border-white">
                     <h5 class="text-md font-bold my-3">Order ID: <span class="text-gray-700">${order._id}</span></h5>
-                    <h5 id="statusDiv-${order._id}" class="text-md font-bold my-3 ${statusColorClass}">${order.status.status}</h5>
+                    <h5 id="statusDiv-${order._id}" class="text-md font-bold my-3 ${statusColorClass}">${order.status.status.charAt(0).toUpperCase()+order.status.status.slice(1)}</h5>
                 </div>
                 <div class="flex items-center justify-between">
                     <p class="text-black text-sm my-3 font-bold">Date: <span class="text-gray-700">${order.date}</span></p>
@@ -85,7 +86,6 @@ async function fetchOrders(filter) {
 
                 </div>
             </div>`;
-      // </a>
 
       orderContainer.appendChild(orderItem);
       const productDiv = document.getElementById(`productDiv-${order._id}`);
