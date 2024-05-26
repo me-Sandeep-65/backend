@@ -9,32 +9,32 @@
         <!-- Radio buttons for filtering -->
         <div class="flex items-center">
           <input
+          type="radio"
+          id="pending"
+          name="status"
+          value="pending"
+          checked
+          class="mr-2 status-radio"
+          />
+          <label for="pending" class="mr-4">Pending</label>
+          
+          <input
+          type="radio"
+          id="resolved"
+          name="status"
+          value="resolved"
+          class="mr-2 status-radio"
+          />
+          <label for="resolved" class="mr-4">Resolved</label>
+
+          <input
             type="radio"
             id="all"
             name="status"
             value="all"
-            checked
             class="mr-2 status-radio"
           />
           <label for="all" class="mr-4">All</label>
-  
-          <input
-            type="radio"
-            id="pending"
-            name="status"
-            value="pending"
-            class="mr-2 status-radio"
-          />
-          <label for="pending" class="mr-4">Pending</label>
-  
-          <input
-            type="radio"
-            id="resolved"
-            name="status"
-            value="resolved"
-            class="mr-2 status-radio"
-          />
-          <label for="resolved">Resolved</label>
         </div>
       </div>
       <div id="content"></div>

@@ -658,13 +658,15 @@ router.get("/ticket/:id", verifyToken, async (req, res) => {
       } else {
         const ticket = await Complaint.findById(id).populate({
           path: "userId",
-          select: "name age mail mobile",
+          select: "image name age mail mobile",
         });
 
         if (!ticket) {
           req.flash("error", "Invalid Ticket ID.");
           res.status(200).redirect("/admin/alltickets");
         }
+
+        console.log(ticket)
 
         res.status(200).render("adminPartials/ticket", {
           layout: "adminLayout",
@@ -700,7 +702,7 @@ router.patch("/ticket/:id", verifyToken, async (req, res) => {
           const newTicket = await Complaint.findByIdAndUpdate(
             id,
             {
-              status: "Resolved",
+              status: "resolved",
             },
             { new: true }
           );

@@ -5,7 +5,7 @@
       >
       <!-- <div class="flex itmes-center justify-evenly border-b-2 border-white"> -->
         <h5 class="text-md font-bold my-3">Ticket ID: <span id="ticket-id" class="text-gray-700"><%= ticket._id %></span></h5>
-        <h5 id="status" class="text-md font-bold my-3 <%= ticket.status === 'pending' ? 'text-orange-500' : 'text-green-700' %>"><%= ticket.status %></h5>
+        <h5 id="status" class="text-md font-bold my-3 <%= ticket.status === 'pending' ? 'text-orange-500' : 'text-green-700' %>"><%= ticket.status.charAt(0).toUpperCase()+ticket.status.slice(1) %></h5>
         <% if(ticket.status==="pending"){ %>
         <button
         id="status-btn"
@@ -55,7 +55,7 @@
                                 if(message.role==="user"){ %>
                                     <div class="flex items-start">
                                         <div class="flex-shrink-0">
-                                            <img class="h-8 w-8 rounded-full" src="/images/profiles/profile.png" alt="Avatar">
+                                            <img class="h-8 w-8 rounded-full" src="/images/profiles/users/<%= ticket.userId.image ? ticket.userId.image : 'profile.png' %>" alt="Avatar">
                                         </div>
                                         <div class="ml-3 bg-gray-100 p-2 rounded-lg">
                                             <p class="text-sm"><%= message.body %></p>

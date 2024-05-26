@@ -3,6 +3,12 @@ const bcrypt = require("bcrypt");
 const Order = require("../models/orderModel")
 
 const userSchema = new mongoose.Schema({
+  image: {
+    type: String,
+    trim: true,
+    default: "profile.png",
+  },
+
   name: {
     type: String,
     trim: true,

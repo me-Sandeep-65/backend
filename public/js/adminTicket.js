@@ -3,13 +3,11 @@ const loadingIndicator = document.getElementById("loading-element");
 const statusRadioButtons = document.querySelectorAll('.status-radio');
 
 let cursor = null;
-let filter = null;
+let filter = "pending";
   
 statusRadioButtons.forEach(button => {
   button.addEventListener('change', function() {
-    filter = this.value === "all"? null : this.value;
-    
-    
+    filter = this.value === "all" ? null : this.value;
     console.log("filter: ", filter)
 
     console.log("value: ", this.value)
@@ -38,7 +36,7 @@ async function fetchTickets() {
       ticketItem.classList.add("bg-gray-200", "p-4", "my-2", "rounded");
       ticketItem.innerHTML = `<div class="flex itmes-center justify-between border-b-2 border-white">
         <h5 class="text-md font-bold my-3">Ticket ID: <span class="text-gray-700">${ticket._id}</span></h5>
-        <h5 class="text-md font-bold my-3 ${statusColorClass}">${ticket.status}</h5>
+        <h5 class="text-md font-bold my-3 ${statusColorClass}">${ticket.status.charAt(0).toUpperCase()+ticket.status.slice(1)}</h5>
         </div>
         <div class="flex items-center justify-between">
         <p class="text-black text-sm my-3 font-bold">Order ID: <span class="text-gray-700">${ticket.orderId}</span></p>
