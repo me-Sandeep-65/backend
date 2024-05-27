@@ -1,5 +1,6 @@
 const express = require("express");
-const connectDB = require("./connectMongo.js");
+const connectDB = require("./utils/connectMongo.js");
+const changeStream = require("./utils/changeStream.js");
 const userRoutes = require("./routes/userRoutes.js");
 const adminRoutes = require("./routes/adminRoutes.js");
 const staffRoutes = require("./routes/staffRoutes.js");
@@ -11,13 +12,19 @@ const session = require("express-session");
 const flash = require("express-flash");
 const ejs = require("ejs");
 const expressLayouts = require("express-ejs-layouts");
-const cors= require("cors")
+const cors= require("cors");
 
 const app = express();
 const port = process.env.PORT || 8000;
 
 // function call to connect to database
 connectDB();
+console.log("Got the change stream instance.");
+console.log(changeStream);
+changeStream.on("change", (change) => {
+  console.log("within on change")
+  console.log("Change detected:", change);
+});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -61,3 +68,5 @@ app.get("/*", (req, res) => {
 app.listen(port, () => {
   console.log(`server is live on port ${port}`);
 });
+
+module.exports = changeStream;

@@ -558,7 +558,6 @@ router.patch("/order/:id", verifyToken, async (req, res) => {
           console.log("here confirming otp")
           Order.findById(id,{otp:1})
           .then((response)=>{
-            console.log(response)
             if(response.otp===Number(req.body.otp)){
               const statusObj={
                 status: "completed",
@@ -589,7 +588,6 @@ router.patch("/order/:id", verifyToken, async (req, res) => {
 
           Order.findByIdAndUpdate(id,{otp, waitingTime, status: statusObj})
           .then((response)=>{
-            console.log(response)
               res.status(201).json({message: "update successful."})
           }).catch((err)=>{
             throw err
@@ -602,11 +600,11 @@ router.patch("/order/:id", verifyToken, async (req, res) => {
             role: "admin"
           }
 
-          Order.findByIdAndUpdate(id,{otp, status: statusObj})
+          Order.findByIdAndUpdate(id,{status: statusObj})
           .then((response)=>{
-            console.log(response)
-              res.status(201).json({message: "update successful."})
+              res.status(202).json({message: "update successful."})
           }).catch((err)=>{
+            console.log("error in cancelling: ", err)
             throw err
           })
         }
