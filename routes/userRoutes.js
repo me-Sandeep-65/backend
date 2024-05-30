@@ -18,6 +18,9 @@ const {
   verifyPassword,
   verifyToken,
 } = require("../middlewares/auth");
+const changeStream = require("../utils/changeStream");
+const { disconnect } = require("process");
+const { json } = require("body-parser");
 
 // const uploader= multer({
 //     storage:multer.diskStorage({
@@ -338,20 +341,73 @@ router.get("/myorder", verifyToken, async (req, res) => {
   }
 });
 
-// router.get("/myorders/:id", verifyToken, async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const order = await Order.findById(id);
+router.get("/myorder/:id", async (req, res) => {
+if (!req.err) {
+  const { id } = req.params;
 
-//     res.status(200).json({ placedOrder: order });
-//   } catch (error) {
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
+  Order.findById(id)
+  .populate({
+    path: "products.product",
+    select: "name price type", // Select fields from products
+  })
+  .exec()
+  .then((order) => {
+    console.log("printing order.")
+    console.log(order);
+    console.log("order printed.")
+      // check if order belongs to the user requesting it
+      if (order.userId === req._id) {
+        res.render("partials/singleOrder", { order });
+      } else {
+        console.log("The order does not belong to the user requesting it.");
+        res.status(400).json({ error: "OrderId does not exists." });
+      }
+  })
+  .catch((err) => {
+    console.log(err);
+    res.status(500).json({error: "Internal Server Error." })
+  });
+  
+} else {
+  res.status(400).json({ error: "User Unauthorized." });
+}
+});
 
-// router.patch("/myorders", verifyToken, (req, res) => {
-//   res.send("sab changa si");
-// });
+router.get("/order-status/:id", async (req, res) => {
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Content-Type", "text/event-stream");
+  
+  function send (res, update) {
+    res.write("data: " + JSON.stringify(update)+"\n\n");
+  }
+
+  changeStream.on('change', (update)=>{
+    send(res, {
+      data: {
+        id: update.documentKey._id, 
+        update: update.updateDescription.updatedFields.status.status, 
+        otp: update.updateDescription.updatedFields.otp,
+        waitingTime: update.updateDescription.updatedFields.waitingTime,
+    }});
+  });
+
+  changeStream.on("error", (error) => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
+  
+  changeStream.on("close", () => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
+  
+  changeStream.on("end", () => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
+});
+
 
 router.get("/products-by-cursor", async (req, res) => {
   try {

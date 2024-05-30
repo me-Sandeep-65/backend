@@ -1,24 +1,22 @@
 const orderContainer = document.getElementById("order-content");
 const loadingIndicator = document.getElementById("order-loading-element");
-const statusRadioButtons = document.querySelectorAll(".status-radio");
+const statusMenu = document.getElementById("statusDropdown");
 
 let cursor = null;
 let filter = "pending";
 
-statusRadioButtons.forEach((button) => {
-  button.addEventListener("change", function () {
-    filter = this.value === "all" ? null : this.value;
+statusMenu.addEventListener("change", function () {
+    filter = statusMenu.value === "all" ? null : statusMenu.value;
 
     console.log("filter: ", filter);
 
-    console.log("value: ", this.value);
+    console.log("value: ", statusMenu.value);
     // clear the content panel
     orderContainer.innerHTML = "";
     cursor = null;
 
     fetchOrders(filter);
   });
-});
 
 async function cancelOrder(orderId) {
   console.log(orderId);
@@ -42,6 +40,38 @@ async function confirmOrder(orderId) {
       waitingTime: document
         .getElementById(`waiting-time-${orderId}`)
         .value.trim(),
+    });
+    console.log("response is:");
+    console.log(response);
+    document.getElementById(`orderItem-${orderId}`).remove();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+async function waitOrder(orderId) {
+  console.log(orderId);
+
+  try {
+    const response = await axios.patch(`/admin/order/${orderId}?waiting=true`, {
+      waiting: true,
+    });
+    console.log("response is:");
+    console.log(response);
+    document.getElementById(`orderItem-${orderId}`).remove();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+async function readyOrder(orderId) {
+  console.log(orderId);
+
+  try {
+    const response = await axios.patch(`/admin/order/${orderId}?ready=true`, {
+      ready: true,
     });
     console.log("response is:");
     console.log(response);
@@ -85,8 +115,12 @@ async function fetchOrders(filter) {
       let statusColorClass;
       if (order.status.status === "pending")
         statusColorClass = "text-yellow-300";
+      else if (order.status.status === "confirm")
+        statusColorClass = "text-lime-500";
       else if (order.status.status === "waiting")
         statusColorClass = "text-orange-500";
+      else if (order.status.status === "ready")
+        statusColorClass = "text-blue-500";
       else if (order.status.status === "cancelled")
         statusColorClass = "text-red-500";
       else statusColorClass = "text-green-700";
@@ -186,6 +220,40 @@ async function fetchOrders(filter) {
 
       orderItem.appendChild(pendingBtnDiv2);
 
+      const waitingBtnDiv = document.createElement("div");
+      waitingBtnDiv.classList.add(
+        "hidden",
+        "flex",
+        "flex-row",
+        "item-center",
+        "justify-end"
+      );
+      waitingBtnDiv.id = `waiting-btn-div-${order._id}`;
+      waitingBtnDiv.innerHTML = `<button
+                                  id="waiting-order-${order._id}"
+                                  class="btn rounded-full text-white font-bold py-2 px-4 my-2 focus:outline-none focus:shadow-outline"
+                                  >
+                                  Prepare Order
+                                  </button>`;
+
+      orderItem.appendChild(waitingBtnDiv);
+      const readyBtnDiv = document.createElement("div");
+      readyBtnDiv.classList.add(
+        "hidden",
+        "flex",
+        "flex-row",
+        "item-center",
+        "justify-end"
+      );
+      readyBtnDiv.id = `ready-btn-div-${order._id}`;
+      readyBtnDiv.innerHTML = `<button
+                                  id="ready-order-${order._id}"
+                                  class="btn rounded-full text-white font-bold py-2 px-4 my-2 focus:outline-none focus:shadow-outline"
+                                  >
+                                  Mark as Ready
+                                  </button>`;
+
+      orderItem.appendChild(readyBtnDiv);
       const completeBtnDiv = document.createElement("div");
       completeBtnDiv.classList.add(
         "hidden",
@@ -228,7 +296,13 @@ async function fetchOrders(filter) {
       if (order.status.status === "pending") {
         pendingBtnDiv.classList.remove("hidden");
       }
-      if (order.status.status === "waiting") {
+      else if (order.status.status === "confirm") {
+        waitingBtnDiv.classList.remove("hidden");
+      }
+      else if (order.status.status === "waiting") {
+        readyBtnDiv.classList.remove("hidden");
+      }
+      else if (order.status.status === "ready") {
         completeBtnDiv.classList.remove("hidden");
       }
 
@@ -247,6 +321,16 @@ async function fetchOrders(filter) {
         .getElementById(`confirm-order-${order._id}`)
         .addEventListener("click", async () => {
           await confirmOrder(order._id);
+        });
+      document
+        .getElementById(`waiting-order-${order._id}`)
+        .addEventListener("click", async () => {
+          await waitOrder(order._id);
+        });
+      document
+        .getElementById(`ready-order-${order._id}`)
+        .addEventListener("click", async () => {
+          await readyOrder(order._id);
         });
 
       document

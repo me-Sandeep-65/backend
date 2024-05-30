@@ -1,0 +1,307 @@
+<section class="container mx-auto bg-white rounded-md">
+  <div class="w-2/3 mx-auto text-gray-800 py-4">
+    <div class="w-full px-2 flex justify-between items-center border-b-2 border-gray-300">
+      <div
+        class="font-bold text-2xl py-2"
+      >
+        Order Status
+      </div>
+      <div class="font-bold px-3">
+        Order ID: <span id="order-id" class="font-normal"><%= order._id %></span>
+      </div>
+    </div>
+    <div
+      id="timer-div"
+      class="<%= order.status.status === 'pending' || order.status.status === 'completed' || order.status.status === 'cancelled' ? 'hidden' : '' %> w-full py-3 px-6 mt-1 flex justify-between items-center bg-gray-200 rounded-md"
+      >
+      <div class="font-bold text-red-700 flex items-center">
+        <i class="las la-stopwatch text-4xl"></i>
+        <span class="px-1 font-normal"
+          ><span
+            id="min"
+            data-waiting-time="<%= order.waitingTime ? order.waitingTime : '0' %>"
+            data-order-date="<%= order.date%>"
+            data-order-status="<%= order.status.status %>"
+          ></span
+          >: <span id="sec"></span> min</span
+        >
+      </div>
+      <div id="otp-div" class="font-bold <%= order.status.status !== 'ready' ? 'hidden' : '' %>">
+        OTP:
+        <span class="px-1 font-normal"
+          ><%= order.otp && order.status.status == 'ready' ? order.otp :''%></span>
+      </div>
+    </div>
+    <div class="w-full py-6 px-20 my-3 h-1/2">
+      <ul
+        class="w-full h-full flex flex-col justify-between text-gray-800 text-lg"
+      >
+        <li id="status-list" data-status-list="pending" class="relative flex items-center">
+          <i class="las la-clipboard-check text-4xl mx-4 shadow-drop"></i>
+          <span class="dot h-4 w-4 rounded-full m-2 shadow-md"></span>
+          <span class="mx-3">Order Placed</span>
+        </li>
+        <div class="h-full w-full">
+          <div class="status-line h-full w-1 ml-20 shadow-md rounded-sm"></div>
+        </div>
+        <li data-status-list="confirm" class="relative flex items-center">
+          <i class="las la-check-double text-4xl mx-4 shadow-drop"></i>
+          <span class="dot h-4 w-4 rounded-full m-2 shadow-md"></span>
+          <span class="mx-3">Order Confirmation</span>
+        </li>
+        <div class="h-full w-full">
+          <div class="status-line h-full w-1 ml-20 shadow-md rounded-sm"></div>
+        </div>
+        <li data-status-list="waiting" class="relative flex items-center">
+          <i class="las la-hourglass-half text-4xl mx-4 shadow-drop"></i>
+          <span class="dot h-4 w-4 rounded-full m-2 shadow-md"></span>
+          <span class="mx-3">Preparation</span>
+        </li>
+        <div class="h-full w-full">
+          <div class="status-line h-full w-1 ml-20 shadow-md rounded-sm"></div>
+        </div>
+        <li data-status-list="ready" class="relative flex items-center">
+          <i class="las la-box text-4xl mx-4 shadow-drop"></i>
+          <span class="dot h-4 w-4 rounded-full m-2 shadow-md"></span>
+          <span class="mx-3">Ready to Receive</span>
+        </li>
+        <div class="h-full w-full">
+          <div class="status-line h-full w-1 ml-20 shadow-md rounded-sm"></div>
+        </div>
+        <li data-status-list="completed" class="relative flex items-center">
+          <i class="las la-smile text-4xl mx-4 shadow-drop"></i>
+          <span class="dot h-4 w-4 rounded-full m-2 shadow-md"></span>
+          <span class="mx-3">Complete</span>
+        </li>
+        <div class="h-full w-full">
+          <div class="status-line h-full w-1 ml-20 shadow-md rounded-sm"></div>
+        </div>
+        <li data-status-list="cancelled" class="relative flex items-center">
+          <i class="las la-times text-4xl mx-4 shadow-drop"></i>
+          <span class="dot h-4 w-4 rounded-full m-2 shadow-md"></span>
+          <span class="mx-3">Cancel</span>
+        </li>
+      </ul>
+    </div>
+    <div
+      id="order-summary"
+      class="w-full px-2 flex justify-between items-center border-b-2 border-gray-300"
+    >
+      <div class="font-bold text-2xl py-2">Order Summary</div>
+      <img
+        src="/img/arrow.png"
+        class="arrow"
+        style="width: 30px; height: 30px; padding: 3px"
+        alt=""
+      />
+    </div>
+    <div id="order-items" class="hidden bg-gray-200 p-4 my-2 rounded-md">
+        <div class="flex items-center justify-between">
+            <%const formattedDate = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+              }).format(order.date);%>
+            <p class="text-black text-md my-3 font-bold">Date: <span class="text-gray-600 font-normal"><%= formattedDate %></span></p>
+            <p class="text-black text-md my-3 font-bold">Payment ID: <span class="text-gray-600 font-normal"><%= order.payment.paymentId.split('_')[1] %></span></p>
+        </div>
+        <div class="border-t-2 border-white" id="productDiv-<%= order._id %>">
+            <div class="text-black text-md my-3 font-bold">Products</div>
+            <% var qty=0;
+            order.products.forEach((productObj)=>{
+                qty = qty + Number(productObj.quantity)
+            %>
+            <div class="grid grid-cols-4 justify-items-end"><span><%= productObj.product.name %></span> <span><%= productObj.product.type %></span> <span><%= productObj.quantity %></span> <span>₹<%= productObj.product.price*productObj.quantity %></span></div>
+            <%})%>
+        </div>
+        <div class="grid grid-cols-4 justify-items-end mt-4 font-bold"><span>Total number of items:</span> <span class="font-bold"><%= qty %></span></div>
+    </div>
+    <div
+      class="w-full font-bold text-lg py-3 text-right text-bottom border-gray-300 border-t-2"
+    >
+      Order Total: ₹<%=order.netTotal%>
+    </div>
+    <div class="px-2 flex flex-row item-center justify-between">
+        <a href="/raise_ticket/<%= order._id %>">
+            <button
+                id="cancel-order-${order._id}"
+                class="hollow-btn rounded-full font-bold py-2 px-4 my-2 focus:outline-none focus:shadow-outline"
+                >
+                Raise Complaint
+            </button>
+        </a>
+        <button
+            id="cancel-order-btn"
+            class="btn rounded-full text-white font-bold py-2 px-4 my-2 focus:outline-none focus:shadow-outline"
+            >
+            Cancel Order
+        </button>
+    </div>
+  </div>
+</section>
+<script>
+  const minute = document.getElementById("min");
+  const second = document.getElementById("sec");
+  const itemsDiv = document.getElementById("order-items");
+  const orderSummary = document.getElementById("order-summary");
+  const arrowImg = orderSummary.querySelector(".arrow");
+  const timerDiv = document.getElementById("timer-div");
+  const firstStatusListItem = document.getElementById("status-list");
+  let secondIntervalId;
+  let minuteIntervalId;
+
+//   statusDiv.dataset.addEventListener("change", () => {
+//     if (
+//       statusDiv.dataset.status === "confirm" ||
+//       statusDiv.dataset.status === "waiting" ||
+//       statusDiv.dataset.status === "ready"
+//     ) {
+//         if(!secondIntervalId) setTimer(minute, minuteIntervalId, second, secondIntervalId);
+//         timerDiv.classList.remove("hidden");
+//     }
+//     if (statusDiv.dataset.status === "ready") {
+//         timerDiv.getElementById("otp-div").classList.remove("hidden");
+//     }
+//   });
+
+  arrowImg.addEventListener("click", () => {
+    itemsDiv.classList.toggle("hidden");
+    arrowImg.classList.toggle("rotate-180");
+  });
+
+
+
+  function setTimer() {
+    const targetTime = new Date(new Date(minute.dataset.orderDate).getTime() + parseInt(minute.dataset.waitingTime) * 60000 );
+
+    let remainingTimeInSeconds = Math.max(
+      0,
+      Math.floor((targetTime - new Date().getTime()) / 1000)
+    );
+
+    console.log("remaining time 1", remainingTimeInSeconds);
+    second.innerText = String(Math.floor(remainingTimeInSeconds % 60)).padStart(
+      2,
+      "0"
+    );
+
+    console.log("remaining time 2", remainingTimeInSeconds);
+    minute.innerText = String(Math.floor(remainingTimeInSeconds / 60)).padStart(
+      2,
+      "0"
+    );
+    if (remainingTimeInSeconds > 0) {
+      secondIntervalId = setInterval(() => {
+        remainingTimeInSeconds--;
+        console.log("remaining time 3", remainingTimeInSeconds);
+        second.innerText = String(
+          Math.floor(remainingTimeInSeconds % 60)
+        ).padStart(2, "0");
+        if (remainingTimeInSeconds === 0) {
+          clearInterval(secondIntervalId);
+          clearInterval(minuteIntervalId);
+        }
+      }, 1000);
+
+      setTimeout(() => {
+        console.log("remaining time 4", remainingTimeInSeconds);
+        minute.innerText = String(
+          Math.floor(remainingTimeInSeconds / 60)
+        ).padStart(2, "0");
+        minuteIntervalId = setInterval(() => {
+          console.log("remaining time 5", remainingTimeInSeconds);
+          minute.innerText = String(
+            Math.floor(remainingTimeInSeconds / 60)
+          ).padStart(2, "0");
+        }, 60000);
+      }, (Math.floor(remainingTimeInSeconds % 60) + 1) * 1000);
+    }
+  }
+
+  function setStatus(StatusListItem) {{
+    console.log(minute.dataset.orderStatus)
+    console.log(minute.dataset.orderStatus !== "pending")
+    console.log(minute.dataset.orderStatus !== "confirm")
+    if (minute.dataset.orderStatus !== "pending" && minute.dataset.orderStatus !== "confirm") document.getElementById("cancel-order-btn").classList.add("hidden");
+
+    while (StatusListItem.dataset.statusList !== minute.dataset.orderStatus) {
+        console.log("in while")
+        console.log(StatusListItem.dataset.statusList)
+        console.log(minute.dataset.orderStatus)
+        console.log(StatusListItem.dataset.statusList !== minute.dataset.orderStatus)
+        StatusListItem.classList.remove("status-current");
+        StatusListItem.classList.add("status-complete");
+        StatusListItem.nextElementSibling.classList.add("status-complete");
+
+        StatusListItem = StatusListItem.nextElementSibling.nextElementSibling;
+    }
+
+    StatusListItem.classList.add("status-current");
+  }
+    
+  }
+  
+  // setup the sse connection
+  function setupSSE() {
+    try {
+        const orderId = document.getElementById("order-id").innerText.trim();
+        const eventSource = new EventSource(`/order-status/${orderId}`);
+        
+        eventSource.onopen = ()=>{
+            console.log("sse established.");
+        };
+
+        eventSource.onmessage = (event) => {
+            console.log("Message received:", event.data);
+            // Use event.data to access the message payload
+            const jsonData = JSON.parse(event.data);
+            console.log(jsonData.data)
+            console.log(jsonData.data.update)
+            console.log(jsonData.data.id)
+            console.log(jsonData.data.otp)
+            console.log(jsonData.data.waitingTime)
+            if(jsonData.data.waitingTime){
+                timerDiv.classList.toggle("hidden");
+                minute.dataset.waitingTime = jsonData.data.waitingTime;
+                setTimer();
+            }
+
+            if(jsonData.data.otp){
+                document.getElementById("otp-div").querySelector('span').innerText = jsonData.data.otp;
+            }
+
+            if(jsonData.data.update === "completed" || jsonData.data.update === "cancelled"){
+                timerDiv.classList.add("hidden");
+            }
+
+            console.log(minute.dataset.orderStatus);
+            console.log(jsonData.data.update);
+
+            minute.dataset.orderStatus = jsonData.data.update;
+            console.log(minute.dataset.orderStatus)
+            setStatus(firstStatusListItem);
+        };
+
+        eventSource.onerror = (error)=>{ 
+            console.log("error");
+            console.log(error);
+            eventSource.close();
+        };
+
+        eventSource.onclose = ()=>{
+            console.log("sse closed.");
+        };
+    } 
+    catch (error) {
+        console.log(error);
+    }
+  }
+
+  setStatus(firstStatusListItem);
+  setTimer();
+  if (minute.dataset.orderStatus !== "completed" && minute.dataset.orderStatus !== "cancelled") setupSSE();
+
+</script>

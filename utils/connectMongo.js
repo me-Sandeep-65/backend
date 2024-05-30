@@ -1,6 +1,7 @@
 const mongoose=require('mongoose')
+require("dotenv").config();
 
-const mongoAtlasUri="mongodb+srv://sandeep:helloji@cluster0.ufrq1vk.mongodb.net/SSRS?retryWrites=true&w=majority&appName=Cluster0";
+const mongoAtlasUri= process.env.CONNECTION_STRING;
 
 const connectDB = async () => {
     try {
