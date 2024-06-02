@@ -1,15 +1,75 @@
 <section class="login flex justify-center py-24">
     <div class="w-full max-w-2xl">
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div class="flex items-center justify-center">
-                <img title="Click to change photo." id="profile-img" src="/images/profiles/profile.png" alt="profile-img" style="width: 250px; height: 250px; border-radius:50%; box-shadow: 0 0 10px 1px #ccc;">
-            </div>
-            
-            <% if(messages.error) { %>
-            <div class="text-red-500 text-sm mb-3"><%= messages.error %></div>
-            <% } %>
-            <div id="err-msg" class="text-red-500 text-sm mb-3 hidden"></div>
-
+            <div class="flex flex-col items-center justify-center">
+                <img
+                  title="Click to change photo."
+                  id="profile-img"
+                  src="/images/profiles/users/<%= user && user.image ? user.image : 'profile.png' %>"
+                  alt="profile-img"
+                  style="
+                    cursor: pointer;
+                    width: 250px;
+                    height: 250px;
+                    border-radius: 50%;
+                    box-shadow: 0 0 10px 1px #ccc;
+                  "
+                />
+                <div id="msg-section" class="text-red-500 text-sm my-6">
+                  <%= messages.error %>
+                </div>
+              </div>
+              <div id="overlay" style="display: none">
+                <div
+                  id="image-upload-panel"
+                  class="w-full max-w-2xl rounded-md flex flex-col items-center justify-center"
+                >
+                  <label class="text-2xl font-bold">Upload Image</label>
+                  <div
+                    class="bg-gray-200 shadow-inner rounded-md w-full my-6 cursor-pointer"
+                  >
+                    <div
+                      id="upload-container"
+                      class="flex flex-col items-center w-full h-full"
+                    >
+                      <img
+                        src="/img/upload-img.png"
+                        alt="upload-img"
+                        class="w-1/2 h-1/2 object-contain"
+                      />
+                      <label for="panelFileInput" class="mb-4 cursor-pointer">
+                        Drag and drop an image or click here to select an image:
+                        <input
+                          type="file"
+                          style="display: none"
+                          id="panelFileInput"
+                          accept="image/*"
+                        />
+                      </label>
+                    </div>
+                    <div
+                      id="preview"
+                      class="flex flex-col items-center w-full h-full"
+                    ></div>
+                  </div>
+                  <div class="w-full flex justify-end">
+                    <button
+                      id="cancelBtn"
+                      class="btn rounded-full text-white font-bold py-2 px-4 mx-3 rounded focus:outline-none focus:shadow-outline"
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      id="confirmBtn"
+                      class="btn rounded-full text-white font-bold py-2 px-4 mx-3 rounded focus:outline-none focus:shadow-outline"
+                      type="button"
+                    >
+                      Confirm
+                    </button>
+                  </div>
+                </div>
+              </div>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
                     Name
@@ -93,13 +153,32 @@
     </div>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- Include jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
+/>
 <script>
+  // Get elements
+  const profileImage = document.getElementById("profile-img");
+  const panel = document.getElementById("image-upload-panel");
+  const overlay = document.getElementById("overlay");
+  const panelFileInput = document.getElementById("panelFileInput");
+  const uploadContainer = document.getElementById("upload-container");
+  const msgSection = document.getElementById("msg-section");
+  const preview = document.getElementById("preview");
+  let image_name = profileImage.src.split("/").pop();
+  console.log("imgName ",image_name)
+  let flag = false;
+  let cropper;
+
     const name=document.getElementById("name")
     const age=document.getElementById("age")
     const mail=document.getElementById("mail")
     const mobile=document.getElementById("mobile")
 
-    const errorMsg= document.getElementById("err-msg")
     const updateProfile= document.getElementById("update-profile-btn")
     const updatePassword= document.getElementById("update-password-btn")
     const changePassword= document.getElementById("change-password-btn")
@@ -110,28 +189,10 @@
         updatePassword.classList.remove("hidden")
         getPassword.classList.remove("hidden")
     })
-
-    updateProfile.addEventListener('click', ()=>{
-        const isConfirmed = confirm("Are you sure you want to update your profile?");
-
-        if (isConfirmed) {
-            axios.patch("/myprofile",{
-                name: name.value.trim(),
-                age: age.value.trim(), 
-                mail: mail.value.trim(), 
-                mobile: mobile.value.trim(),
-            }).then(()=>{
-                window.location.reload();
-            }).catch((err)=>{
-                errorMsg.innerHTML="Something went wrong."
-                errorMsg.classList.remove("hidden");
-            })
-        }
-    })
-
+    
     updatePassword.addEventListener('click', ()=>{
         const isConfirmed = confirm("Are you sure you want to change your password?");
-
+        
         const oldPassword=document.getElementById('old-password').value.trim()
         const newPassword=document.getElementById('new-password').value.trim()
         if(isConfirmed){
@@ -142,11 +203,9 @@
                 changePassword.classList.remove("hidden")
                 updatePassword.classList.add("hidden")
                 getPassword.classList.add("hidden")
-                errorMsg.innerHTML="Password updated Successfully."
-                errorMsg.classList.remove("hidden");
+                msgSection.innerHTML="Password updated Successfully."
             }).catch((err)=>{
-                errorMsg.innerHTML="Something went wrong."
-                errorMsg.classList.remove("hidden");
+                msgSection.innerHTML="Something went wrong."
             })
         }
         else{
@@ -154,5 +213,178 @@
             document.getElementById('new-password').value='';
         }
     })
+    
+    updateProfile.addEventListener('click', ()=>{
+        const isConfirmed = confirm("Are you sure you want to update your profile?");
+
+        if (isConfirmed) {
+            axios.patch("/myprofile",{
+                image: image_name.trim(),
+                name: name.value.trim(),
+                age: age.value.trim(), 
+                mail: mail.value.trim(), 
+                mobile: mobile.value.trim(),
+            }).then(()=>{
+                window.location.reload();
+            }).catch((err)=>{
+                msgSection.innerHTML="Something went wrong."
+            })
+        }
+    })
+
+
+  // Show panel when productImage is clicked
+  profileImage.addEventListener("click", function () {
+    overlay.style.display = "block";
+    uploadContainer.classList.remove("hidden");
+    preview.classList.add("hidden");
+  });
+
+  uploadContainer.addEventListener("click", function () {
+    document.getElementById("panelFileInput").click();
+  });
+
+  // Hide panel when clicking outside of it
+  document.addEventListener("click", function (event) {
+    if (!panel.contains(event.target) && !profileImage.contains(event.target)) {
+      overlay.style.display = "none";
+      panelFileInput.value = "";
+      preview.innerHTML = "";
+    }
+  });
+
+  // Handle file selection
+  panelFileInput.addEventListener("change", function (event) {
+    const file = event.target.files[0];
+    if (file && file.size <= 500 * 1024) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        // const blob = new Blob([e.target.result], { type: file.type });
+        const image = new Image();
+        image.src = URL.createObjectURL(
+          new Blob([e.target.result], { type: file.type })
+        );
+        image.onload = function () {
+          cropper = new Cropper(image, {
+            aspectRatio: 1 / 1, // Set the aspect ratio of the crop box
+            viewMode: 2, // Set the view mode to restrict the size of the crop box
+          });
+        };
+        uploadContainer.classList.add("hidden");
+        preview.classList.remove("hidden");
+        preview.appendChild(image);
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      alert("Please select an image less than 500KB.");
+      panelFileInput.value = "";
+    }
+  });
+
+  // Prevent default behavior for drag-and-drop events
+  document.addEventListener("dragover", function (e) {
+    e.preventDefault();
+  });
+  document.addEventListener("drop", function (e) {
+    e.preventDefault();
+  });
+
+  document.getElementById("confirmBtn").addEventListener("click", async function () {
+      // Create an image element for the cropped image
+      if (cropper && panelFileInput.value) {
+        // Hide the cropper and show the cropped image
+        overlay.style.display = "none";
+        panelFileInput.value = "";
+        preview.innerHTML = "";
+
+        try {
+          msgSection.innerHTML = ` Uploading... <span><progress id="progressBar" value="0" max="100"></progress></span> <span id="percentage">0 %</span><span id="uploadCancelBtn"><img src="/img/cross.png"></span>`;
+
+          const progressBar = document.getElementById("progressBar");
+          const percentageSpan = document.getElementById("percentage");
+          const cancelBtn = document.getElementById("uploadCancelBtn");
+          let uploadCancelToken = axios.CancelToken.source();
+
+          updateProfile.classList.add("disabled");
+          updateProfile.classList.remove("btn");
+          updateProfile.disabled = true;
+
+          cancelBtn.addEventListener("click", () => {
+            uploadCancelToken.cancel("Upload canceled by user");
+            msgSectioninnerHTML = "";
+            throw new Error({ message: "Upload Cancelled." });
+          });
+
+          const blob = await new Promise((resolve, reject) => {
+            cropper.getCroppedCanvas().toBlob((blob) => {
+              resolve(blob);
+            });
+          });
+          profileImage.src = await URL.createObjectURL(blob);
+
+          // const imgBlob = profileImage.src;
+          const formData = new FormData();
+          formData.append("image", blob, image_name);
+
+          const response = await axios.post(
+            `/myprofile/upload-userProfile-img`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+              // Configuring axios to listen to upload progress
+              onUploadProgress: (progressEvent) => {
+                const progress = Math.round(
+                  (progressEvent.loaded / progressEvent.total) * 100
+                );
+                // Update the progress bar
+                progressBar.value = progress;
+                percentageSpan.innerText = `${progress} %`;
+              },
+              cancelToken: uploadCancelToken.token,
+            }
+          );
+          console.log("image uploaded successfully.");
+          image_name = response.data.image_name;
+          flag = true;
+
+          console.log("flag ",flag)
+          console.log(image_name)
+
+          // cropper.destroy();
+          updateProfile.classList.remove("disabled");
+          updateProfile.classList.add("btn");
+          updateProfile.disabled = false;
+          msgSection.innerHTML = "";
+        } catch (error) {
+          if (axios.isCancel(error)) {
+            // Handle cancelation
+            console.log("Upload canceled by user");
+            // parse error message and show it in msg-section
+            msgSection.innerHTML = error.message;
+            updateProfile.classList.remove("disabled");
+            updateProfile.classList.add("btn");
+            updateProfile.disabled = false;
+          } else {
+            // Handle other errors
+            console.error("Error:", error.message);
+            // parse error message and show it in msg-section
+            msgSection.innerHTML = "Failed to upload Image.";
+            updateProfile.classList.remove("disabled");
+            updateProfile.classList.add("btn");
+            updateProfile.disabled = false;
+          }
+        }
+      } else {
+        alert("Please select a image.");
+      }
+    });
+
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    overlay.style.display = "none";
+    panelFileInput.value = "";
+    preview.innerHTML = "";
+  });
 
 </script>

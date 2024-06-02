@@ -19,19 +19,10 @@ const {
   verifyToken,
 } = require("../middlewares/auth");
 const changeStream = require("../utils/changeStream");
+const uploadImage = require("../utils/img-upload-multer");
 const { disconnect } = require("process");
 const { json } = require("body-parser");
 
-// const uploader= multer({
-//     storage:multer.diskStorage({
-//         destination: function(req, file, cb){
-//             cb(null, "images")
-//         },
-//         filename: function(req, file, cb){
-//             cb(null,file.fieldname+"-"+Date.now()+".png");
-//         }
-//     })
-// }).single("user_file");
 
 router.get("/", (req, res) => {
   res.render("partials/home");
@@ -119,6 +110,15 @@ router.patch("/myprofile", verifyToken, async (req, res) => {
   if (!req.err) {
     try {
       if (!req.body.oldPassword) {
+        if (req.body.image) {
+          const tempImagePath = path.join(__dirname, '../temp/profile-img/', req.body.image); 
+          const targetImagePath = path.join(__dirname, '../images/profiles/users/', req.body.image); 
+      
+          fs.rename(tempImagePath, targetImagePath, function(err) {
+            if (err) console.error('Error moving file:', err);
+          });
+        }
+
         const user = await User.findByIdAndUpdate(req._id, req.body);
         if (!user) {
           throw new Error("User not found.");
@@ -155,6 +155,34 @@ router.patch("/myprofile", verifyToken, async (req, res) => {
   } else {
     req.flash("error", "Unaurhorized.");
     res.status(400).redirect(303, "/");
+  }
+});
+
+router.post("/myprofile/upload-userProfile-img", verifyToken, async(req, res)=>{
+  if (!req.err) {
+    try {
+      const user = await User.findById(req._id, {
+        password: 0,
+        cart: 0,
+        tokens: 0,
+        orders: 0,
+      });
+      if (!user) {
+        res.status(400).json({ message: "User not found." });
+        // direct to login page
+      } else {
+        // upload image to temp folder
+        const image_name = await uploadImage(req, path.join(__dirname, "../temp/profile-img/"));
+        res.status(200).json({image_name});
+      }
+    } catch (error) {
+      console.log(error)
+      req.flash("error", "Server-side Error.");
+      res.status(500).json({message: "Server-side Error."});
+    }
+  } else {
+    req.flash("error", "Invalid Admin ID or Password.");
+    res.status(400).redirect(303, "/admin");
   }
 });
 
