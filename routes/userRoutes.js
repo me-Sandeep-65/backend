@@ -18,17 +18,11 @@ const {
   verifyPassword,
   verifyToken,
 } = require("../middlewares/auth");
+const changeStream = require("../utils/changeStream");
+const uploadImage = require("../utils/img-upload-multer");
+const { disconnect } = require("process");
+const { json } = require("body-parser");
 
-// const uploader= multer({
-//     storage:multer.diskStorage({
-//         destination: function(req, file, cb){
-//             cb(null, "images")
-//         },
-//         filename: function(req, file, cb){
-//             cb(null,file.fieldname+"-"+Date.now()+".png");
-//         }
-//     })
-// }).single("user_file");
 
 router.get("/", (req, res) => {
   res.render("partials/home");
@@ -116,6 +110,15 @@ router.patch("/myprofile", verifyToken, async (req, res) => {
   if (!req.err) {
     try {
       if (!req.body.oldPassword) {
+        if (req.body.image) {
+          const tempImagePath = path.join(__dirname, '../temp/profile-img/', req.body.image); 
+          const targetImagePath = path.join(__dirname, '../images/profiles/users/', req.body.image); 
+      
+          fs.rename(tempImagePath, targetImagePath, function(err) {
+            if (err) console.error('Error moving file:', err);
+          });
+        }
+
         const user = await User.findByIdAndUpdate(req._id, req.body);
         if (!user) {
           throw new Error("User not found.");
@@ -152,6 +155,34 @@ router.patch("/myprofile", verifyToken, async (req, res) => {
   } else {
     req.flash("error", "Unaurhorized.");
     res.status(400).redirect(303, "/");
+  }
+});
+
+router.post("/myprofile/upload-userProfile-img", verifyToken, async(req, res)=>{
+  if (!req.err) {
+    try {
+      const user = await User.findById(req._id, {
+        password: 0,
+        cart: 0,
+        tokens: 0,
+        orders: 0,
+      });
+      if (!user) {
+        res.status(400).json({ message: "User not found." });
+        // direct to login page
+      } else {
+        // upload image to temp folder
+        const image_name = await uploadImage(req, path.join(__dirname, "../temp/profile-img/"));
+        res.status(200).json({image_name});
+      }
+    } catch (error) {
+      console.log(error)
+      req.flash("error", "Server-side Error.");
+      res.status(500).json({message: "Server-side Error."});
+    }
+  } else {
+    req.flash("error", "Invalid Admin ID or Password.");
+    res.status(400).redirect(303, "/admin");
   }
 });
 
@@ -338,20 +369,73 @@ router.get("/myorder", verifyToken, async (req, res) => {
   }
 });
 
-// router.get("/myorders/:id", verifyToken, async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const order = await Order.findById(id);
+router.get("/myorder/:id", async (req, res) => {
+if (!req.err) {
+  const { id } = req.params;
 
-//     res.status(200).json({ placedOrder: order });
-//   } catch (error) {
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
+  Order.findById(id)
+  .populate({
+    path: "products.product",
+    select: "name price type", // Select fields from products
+  })
+  .exec()
+  .then((order) => {
+    console.log("printing order.")
+    console.log(order);
+    console.log("order printed.")
+      // check if order belongs to the user requesting it
+      if (order.userId === req._id) {
+        res.render("partials/singleOrder", { order });
+      } else {
+        console.log("The order does not belong to the user requesting it.");
+        res.status(400).json({ error: "OrderId does not exists." });
+      }
+  })
+  .catch((err) => {
+    console.log(err);
+    res.status(500).json({error: "Internal Server Error." })
+  });
+  
+} else {
+  res.status(400).json({ error: "User Unauthorized." });
+}
+});
 
-// router.patch("/myorders", verifyToken, (req, res) => {
-//   res.send("sab changa si");
-// });
+router.get("/order-status/:id", async (req, res) => {
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Content-Type", "text/event-stream");
+  
+  function send (res, update) {
+    res.write("data: " + JSON.stringify(update)+"\n\n");
+  }
+
+  changeStream.on('change', (update)=>{
+    send(res, {
+      data: {
+        id: update.documentKey._id, 
+        update: update.updateDescription.updatedFields.status.status, 
+        otp: update.updateDescription.updatedFields.otp,
+        waitingTime: update.updateDescription.updatedFields.waitingTime,
+    }});
+  });
+
+  changeStream.on("error", (error) => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
+  
+  changeStream.on("close", () => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
+  
+  changeStream.on("end", () => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
+});
+
 
 router.get("/products-by-cursor", async (req, res) => {
   try {

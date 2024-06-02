@@ -13,18 +13,18 @@ const flash = require("express-flash");
 const ejs = require("ejs");
 const expressLayouts = require("express-ejs-layouts");
 const cors= require("cors");
+const Emitter = require("events")
 
 const app = express();
 const port = process.env.PORT || 8000;
 
 // function call to connect to database
 connectDB();
-console.log("Got the change stream instance.");
-console.log(changeStream);
-changeStream.on("change", (change) => {
-  console.log("within on change")
-  console.log("Change detected:", change);
-});
+
+// create event emitter for realTime status update
+const eventEmitter = new Emitter();
+app.set("eventEmitter", eventEmitter);
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

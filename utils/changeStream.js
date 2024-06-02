@@ -10,6 +10,8 @@ const pipeline = [
     $project: {
       documentKey: 1,
       "updateDescription.updatedFields.status": 1,
+      "updateDescription.updatedFields.otp": 1,
+      "updateDescription.updatedFields.waitingTime": 1,
     },
   },
 ];

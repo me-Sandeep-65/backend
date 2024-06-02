@@ -2,52 +2,17 @@
     <div class="container w-full rounded-md px-7">
         <div class="border-b border-solid border-#FF0000 flex items-center justify-between">
         <div class=" text-#232323 text-xl font-bold flex items-center py-4">My Orders</div>
-        <div class="flex items-center">
-          <input
-          type="radio"
-          id="pending"
-          name="status"
-          value="pending"
-          checked
-          class="mr-2 status-radio"
-          />
-          <label for="pending" class="mr-4">Pending</label>
-          <input
-          type="radio"
-          id="waiting"
-          name="status"
-          value="waiting"
-          class="mr-2 status-radio"
-          />
-          <label for="waiting" class="mr-4">Waiting</label>
-          
-          <input
-          type="radio"
-          id="cancelled"
-          name="status"
-          value="cancelled"
-          class="mr-2 status-radio"
-          />
-          <label for="cancelled" class="mr-4">Cancelled</label>
-          
-          <input
-          type="radio"
-          id="completed"
-          name="status"
-          value="completed"
-          class="mr-2 status-radio"
-          />
-          <label for="completed" class="mr-4">Completed</label>
-
-          <input
-            type="radio"
-            id="all"
-            name="status"
-            value="all"
-            class="mr-2 status-radio"
-          />
-          <label for="all" class="mr-4">All</label>
-        </div>
+        <div class="flex items-center text-lg">
+          <select id="statusDropdown" class="px-4 py-2 bg-gray-200 border border-gray-800 rounded-md text-sm focus:outline-none">
+            <option value="pending" selected>Pending</option>
+            <option value="confirm">Comfirmed</option>
+            <option value="waiting">Waiting</option>
+            <option value="ready">Ready</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="all">All</option>
+          </select>
+        </div>        
       </div>
         <div id="order-content">
 

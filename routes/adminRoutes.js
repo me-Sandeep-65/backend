@@ -554,6 +554,7 @@ router.patch("/order/:id", verifyToken, async (req, res) => {
         res.status(400).redirect("/admin");
         // direct to login page
       } else {
+        console.log(req.query)
         if(req.query.complete){
           console.log("here confirming otp")
           Order.findById(id,{otp:1})
@@ -577,16 +578,30 @@ router.patch("/order/:id", verifyToken, async (req, res) => {
             throw err
           })
         }
+        else if(req.query.ready){
+          const statusObj={
+            status: "ready",
+            by: req._id,
+            role: "admin"
+          }
+          otp=Math.floor(100000 + Math.random() * 900000)
+
+          Order.findByIdAndUpdate(id,{otp, status: statusObj})
+          .then((response)=>{
+              res.status(201).json({message: "update successful."})
+          }).catch((err)=>{
+            throw err
+          })
+        }
         else if(req.query.confirm){
           const statusObj={
-            status: "waiting",
+            status: "confirm",
             by: req._id,
             role: "admin"
           }
           waitingTime=req.body.waitingTime
-          otp=Math.floor(100000 + Math.random() * 900000)
 
-          Order.findByIdAndUpdate(id,{otp, waitingTime, status: statusObj})
+          Order.findByIdAndUpdate(id,{waitingTime, status: statusObj})
           .then((response)=>{
               res.status(201).json({message: "update successful."})
           }).catch((err)=>{
@@ -594,8 +609,11 @@ router.patch("/order/:id", verifyToken, async (req, res) => {
           })
         }
         else{
+          let status = "cancelled" ;
+          if(req.query.waiting) status="waiting";
+
           const statusObj={
-            status: "cancelled",
+            status,
             by: req._id,
             role: "admin"
           }
@@ -610,6 +628,7 @@ router.patch("/order/:id", verifyToken, async (req, res) => {
         }
       }
     } catch (error) {
+      console.log(error)
       req.flash("error", "Server-side Error.");
       res.status(500).redirect("/admin/orders");
     }
