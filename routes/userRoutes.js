@@ -18,7 +18,7 @@ const {
   verifyPassword,
   verifyToken,
 } = require("../middlewares/auth");
-// const changeStream = require("../utils/changeStream");
+const changeStream = require("../utils/changeStream");
 const uploadImage = require("../utils/img-upload-multer");
 const { disconnect } = require("process");
 const { json } = require("body-parser");
@@ -355,7 +355,7 @@ router.get("/myorder", verifyToken, async (req, res) => {
         })
         .exec()
         .then((user) => {
-          console.log(user.orders);
+          // console.log(user.orders);
           // res.json(user.orders)
           res.status(200).render("partials/allOrders", { orders: user.orders });
         })
@@ -381,9 +381,9 @@ if (!req.err) {
   })
   .exec()
   .then((order) => {
-    console.log("printing order.")
-    console.log(order);
-    console.log("order printed.")
+    // console.log("printing order.")
+    // console.log(order);
+    // console.log("order printed.")
       // check if order belongs to the user requesting it
       if (order.userId === req._id) {
         res.render("partials/singleOrder", { order });
