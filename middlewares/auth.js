@@ -40,7 +40,7 @@ async function verifyPassword(req, res, next) {
 const verifyToken = (req, res, next) => {
 if (req.cookies.authorization) {
     const token = req.cookies.authorization.split(" ")[1];
-    // console.log(token)
+    // console.log("token: ", token)
   
     jwt.verify(token, process.env.JwtSecret, (eror, { _id }) => {
       if (eror) {

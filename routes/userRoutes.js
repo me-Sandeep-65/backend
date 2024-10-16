@@ -18,10 +18,11 @@ const {
   verifyPassword,
   verifyToken,
 } = require("../middlewares/auth");
-const changeStream = require("../utils/changeStream");
+// const changeStream = require("../utils/changeStream");
 const uploadImage = require("../utils/img-upload-multer");
 const { disconnect } = require("process");
 const { json } = require("body-parser");
+const { getRecommendations } = require("../utils/recommendation");
 
 
 router.get("/", (req, res) => {
@@ -401,39 +402,114 @@ if (!req.err) {
 }
 });
 
-router.get("/order-status/:id", async (req, res) => {
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-  res.setHeader("Content-Type", "text/event-stream");
+// router.get("/order-status/:id", async (req, res) => {
+//   res.setHeader("Cache-Control", "no-cache");
+//   res.setHeader("Connection", "keep-alive");
+//   res.setHeader("Content-Type", "text/event-stream");
   
-  function send (res, update) {
-    res.write("data: " + JSON.stringify(update)+"\n\n");
+//   function send (res, update) {
+//     res.write("data: " + JSON.stringify(update)+"\n\n");
+//   }
+
+//   changeStream.on('change', (update)=>{
+//     send(res, {
+//       data: {
+//         id: update.documentKey._id, 
+//         update: update.updateDescription.updatedFields.status.status, 
+//         otp: update.updateDescription.updatedFields.otp,
+//         waitingTime: update.updateDescription.updatedFields.waitingTime,
+//     }});
+//   });
+
+//   changeStream.on("error", (error) => {
+//     send(res, {data: {message: "Refresh the page to reconnect."}});
+//     res.end();
+//   });
+  
+//   changeStream.on("close", () => {
+//     send(res, {data: {message: "Refresh the page to reconnect."}});
+//     res.end();
+//   });
+  
+//   changeStream.on("end", () => {
+//     send(res, {data: {message: "Refresh the page to reconnect."}});
+//     res.end();
+//   });
+// });
+
+
+router.get("/product-recommendation/:id", async (req, res) => {
+    try {
+        const recommendations = await getRecommendations(req.params.id);
+
+        const productIds = recommendations.map(rec => rec.item);
+
+        const products = await Product.find({ _id: { $in: productIds } }, { reviews: 0});
+
+        res.status(200).json(products);
+    } catch (error) {
+        console.log(error);
+        req.flash("error", "Server Side Error.");
+        res.status(500).redirect("/");
+    }
+});
+
+router.get("/recommendations", verifyToken, async (req, res) => {
+  if (req._id) {
+      try {
+        const recommendations = await getRecommendations(req._id);
+
+        const productIds = recommendations.map(rec => rec.item);
+
+        const products = await Product.find({ _id: { $in: productIds } }, { reviews: 0});
+
+        res.status(200).json(products);
+    } catch (error) {
+        console.log(error);
+        req.flash("error", "Server Side Error.");
+        res.status(500).redirect("/");
+    }
+  } else {
+    try {
+      // Aggregate to get top selling products
+      const topSellingProducts = await Order.aggregate([
+        { $unwind: '$products' }, // Unwind products array
+        {
+          $group: {
+            _id: '$products.product', // Group by product ID
+            totalQuantity: { $sum: '$products.quantity' }, // Sum the quantities
+          },
+        },
+        {
+          $lookup: {
+            from: 'products', // Assuming the products collection is named 'products'
+            localField: '_id',
+            foreignField: '_id',
+            as: 'productInfo',
+          },
+        },
+        { $unwind: '$productInfo' }, // Unwind the productInfo array
+        {
+          $project: {
+            _id: 0,
+          },
+        },
+        { $sort: { totalQuantity: -1 } }, // Sort by totalQuantity descending
+        { $limit: 6 }, // Limit to top 6 products
+      ]);
+
+      const productInfoArray = topSellingProducts.map(item => {
+        const { reviews, __v, ...productInfo } = item.productInfo; // Destructure and omit reviews
+        return productInfo; // Return the modified object
+      });
+
+      res.status(200).json(productInfoArray);
+    } catch (error) {
+      console.log(error);
+      req.flash("error", "Server Side Error.");
+      res.status(500).redirect("/");
+    }
   }
-
-  changeStream.on('change', (update)=>{
-    send(res, {
-      data: {
-        id: update.documentKey._id, 
-        update: update.updateDescription.updatedFields.status.status, 
-        otp: update.updateDescription.updatedFields.otp,
-        waitingTime: update.updateDescription.updatedFields.waitingTime,
-    }});
-  });
-
-  changeStream.on("error", (error) => {
-    send(res, {data: {message: "Refresh the page to reconnect."}});
-    res.end();
-  });
-  
-  changeStream.on("close", () => {
-    send(res, {data: {message: "Refresh the page to reconnect."}});
-    res.end();
-  });
-  
-  changeStream.on("end", () => {
-    send(res, {data: {message: "Refresh the page to reconnect."}});
-    res.end();
-  });
 });
 
 
@@ -449,7 +525,7 @@ router.get("/products-by-cursor", async (req, res) => {
       query.status = filter;
     }
 
-    const products = await Product.find(query, { review: 0 })
+    const products = await Product.find(query, { reviews: 0 })
       .sort({ _id: -1 })
       .limit(limit + 1);
 

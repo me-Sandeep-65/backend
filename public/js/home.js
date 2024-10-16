@@ -1,6 +1,88 @@
 const productContainer = document.getElementById("content");
+const recommendationContainer = document.getElementById("recommendation");
 const loadingIndicator = document.getElementById("loading-element");
 const cartCounter = document.getElementById("cartCounter");
+
+async function recommendation() {
+  try {
+    const response = await axios.get(
+      `/recommendations`
+    );
+
+    console.log(response.data);
+
+    response.data.forEach((product) => {
+      const productItem = document.createElement("div");
+      productItem.classList.add(
+        "bg-white",
+        "rounded-lg",
+        "shadow-md",
+        "p-6",
+        "flex",
+        "flex-col",
+        "items-center",
+        "justify-center",
+        "hover:bg-gray-200",
+        "transition",
+        "duration-300",
+        "my-4"
+      );
+      productItem.innerHTML = `
+      <div class="flex flex-col items-center justify-center mb-4">
+      <img src="/images/products/${product.image}" class="filter-drop-shadow h-24" alt="${product.name} image">
+      </div>
+    <div class="flex flex-row justify-between w-full">
+    <h3 class="text-xl font-bold mb-2">${product.name}</h3>
+    <h3 class="text-xl font-bold mb-2">₹${product.price}</h3>
+    </div>
+    <div class="flex flex-row items-center justify-between w-full">
+    <div class="flex mb-10">
+    <span class="text-black font-bold">Category:</span>
+    <span class="text-gray-600">${product.category}</span>
+    </div>
+    <div class="mb-10">
+    <span class="text-black font-bold">Type:</span>
+    <span class="text-gray-600">${product.type}</span>
+    </div>
+    </div>
+    <div class="text-md font-bold flex flex-row items-start w-full">Descreption: <span><p class="text-base text-gray-600 mb-4 font-normal">${product.description}</p></span></div>
+
+    <div class="text-center">
+        <button
+        data-item='{"id": "${product._id.toString()}","image": "${product.image}", "name": "${product.name}", "type": "${product.type}", "price": ${product.price}}'
+    class="hollow-btn rounded-full font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline"
+    >
+    Add to cart
+    </button>
+    </div>
+        `;
+
+      recommendationContainer.appendChild(productItem);
+
+      const addToCartBtn = productItem.querySelector(".hollow-btn");
+
+      addToCartBtn.addEventListener("click", function () {
+        const productData = JSON.parse(addToCartBtn.dataset.item);
+
+        axios
+          .post("/mycart", productData)
+          .then((res) => {
+            // console.log(res.data.counter)
+            cartCounter.classList.remove("text-xl")
+            cartCounter.classList.add("text-2xl")
+            cartCounter.innerText = res.data.counter;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+    });    
+
+  } catch (error) {
+    console.log("Error getting recommendation");
+    console.log("Error: ", error);
+  }
+}
 
 let cursor = null;
 
@@ -134,4 +216,5 @@ function hideLoadingIndicator() {
   loadingIndicator.classList.add("hidden");
 }
 
+recommendation();
 fetchProducts();

@@ -5,6 +5,9 @@ const orderSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now,
+    set: function(value) {
+      return new Date(value); // Convert string to Date object
+    }    
   },
 
   waitingTime:{
@@ -30,7 +33,7 @@ const orderSchema = new mongoose.Schema({
 
   netTotal: {
     type: Number,
-    required: [true, "Net total cannot be empty."],
+    // required: [true, "Net total cannot be empty."],
   },
 
   products: {
@@ -75,6 +78,11 @@ const orderSchema = new mongoose.Schema({
       required: true
     }
   },
+});
+
+orderSchema.pre('save', function(next) {
+  this.netTotal = (Number(this.grossTotal) - Number(this.discount)).toString();
+  next();
 });
 
 const Order = new mongoose.model("Order", orderSchema);

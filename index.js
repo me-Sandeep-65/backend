@@ -1,6 +1,8 @@
 const express = require("express");
 const connectDB = require("./utils/connectMongo.js");
 const changeStream = require("./utils/changeStream.js");
+const { initializeRecommendations } = require("./utils/recommendation.js");
+const bulkRoutes = require("./routes/bulkRoutes.js");
 const userRoutes = require("./routes/userRoutes.js");
 const adminRoutes = require("./routes/adminRoutes.js");
 const staffRoutes = require("./routes/staffRoutes.js");
@@ -13,13 +15,14 @@ const flash = require("express-flash");
 const ejs = require("ejs");
 const expressLayouts = require("express-ejs-layouts");
 const cors= require("cors");
-const Emitter = require("events")
+const Emitter = require("events");
 
 const app = express();
 const port = process.env.PORT || 8000;
 
 // function call to connect to database
 connectDB();
+initializeRecommendations();
 
 // create event emitter for realTime status update
 const eventEmitter = new Emitter();
@@ -60,6 +63,7 @@ app.use("/", userRoutes);
 app.use("/pay", paymentRoutes);
 app.use("/staff", staffRoutes);
 app.use("/admin", adminRoutes);
+app.use("/bulk", bulkRoutes);
 
 app.get("/*", (req, res) => {
   res.status(404).send("404 error.");

@@ -2,6 +2,7 @@ const mongoose=require('mongoose')
 require("dotenv").config();
 
 const mongoAtlasUri= process.env.CONNECTION_STRING;
+console.log(mongoAtlasUri)
 
 const connectDB = async () => {
     try {
