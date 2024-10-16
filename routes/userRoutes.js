@@ -402,40 +402,40 @@ if (!req.err) {
 }
 });
 
-// router.get("/order-status/:id", async (req, res) => {
-//   res.setHeader("Cache-Control", "no-cache");
-//   res.setHeader("Connection", "keep-alive");
-//   res.setHeader("Content-Type", "text/event-stream");
+router.get("/order-status/:id", async (req, res) => {
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Content-Type", "text/event-stream");
   
-//   function send (res, update) {
-//     res.write("data: " + JSON.stringify(update)+"\n\n");
-//   }
+  function send (res, update) {
+    res.write("data: " + JSON.stringify(update)+"\n\n");
+  }
 
-//   changeStream.on('change', (update)=>{
-//     send(res, {
-//       data: {
-//         id: update.documentKey._id, 
-//         update: update.updateDescription.updatedFields.status.status, 
-//         otp: update.updateDescription.updatedFields.otp,
-//         waitingTime: update.updateDescription.updatedFields.waitingTime,
-//     }});
-//   });
+  changeStream.on('change', (update)=>{
+    send(res, {
+      data: {
+        id: update.documentKey._id, 
+        update: update.updateDescription.updatedFields.status.status, 
+        otp: update.updateDescription.updatedFields.otp,
+        waitingTime: update.updateDescription.updatedFields.waitingTime,
+    }});
+  });
 
-//   changeStream.on("error", (error) => {
-//     send(res, {data: {message: "Refresh the page to reconnect."}});
-//     res.end();
-//   });
+  changeStream.on("error", (error) => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
   
-//   changeStream.on("close", () => {
-//     send(res, {data: {message: "Refresh the page to reconnect."}});
-//     res.end();
-//   });
+  changeStream.on("close", () => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
   
-//   changeStream.on("end", () => {
-//     send(res, {data: {message: "Refresh the page to reconnect."}});
-//     res.end();
-//   });
-// });
+  changeStream.on("end", () => {
+    send(res, {data: {message: "Refresh the page to reconnect."}});
+    res.end();
+  });
+});
 
 
 router.get("/product-recommendation/:id", async (req, res) => {
